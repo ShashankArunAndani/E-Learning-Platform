@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head') %>
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <main class="container" style="padding-top: var(--space-4);">
+    <div style="margin-bottom: var(--space-3);">
+      <a href="/courses/manage" style="color: var(--text-muted); font-size: 0.9rem;">&larr; Back to Workspace</a>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-4);">
+      <div>
+        <h1 style="font-size: 2.25rem;"><%= course.title %></h1>
+        <p style="color: var(--text-muted);">Curriculum & Lesson Manager</p>
+      </div>
+
+      <div>
+        <a href="/courses/<%= course.course_id %>" class="btn btn-secondary btn-sm" target="_blank">Preview Course &rarr;</a>
+      </div>
+    </div>
+
+    <%- include('../partials/flash') %>
+
+    <div class="dashboard-grid">
+      <!-- Add Lesson Form -->
+      <aside class="sidebar-card">
+        <h3 style="font-size: 1.15rem; margin-bottom: var(--space-3);">Add New Lesson</h3>
+        
+        <form action="/courses/<%= course.course_id %>/lessons" method="POST">
+          <div class="form-group">
+            <label for="title" class="form-label">Lesson Title *</label>
+            <input type="text" id="title" name="title" class="form-control" placeholder="e.g. Introduction to Routing" required>
+          </div>
+
+          <div class="form-group">
+            <label for="content_type" class="form-label">Content Type *</label>
+            <select id="content_type" name="content_type" class="form-control" required>
+              <option value="video">Video</option>
+              <option value="document">Document / Text</option>
+              <option value="quiz">Quiz</option>
+              <option value="other">Other Asset</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="content_url" class="form-label">Content URL / Path *</label>
+            <input type="text" id="content_url" name="content_url" class="form-control" placeholder="https://cdn.example.com/video1.mp4 or /uploads/doc.pdf" required>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2);">
+            <div class="form-group">
+              <label for="duration" class="form-label">Duration (Mins)</label>
+              <input type="number" min="0" id="duration" name="duration" class="form-control" placeholder="15">
+            </div>
+
+            <div class="form-group">
+              <label for="order_index" class="form-label">Order Index *</label>
+              <input type="number" min="1" id="order_index" name="order_index" class="form-control" value="<%= nextOrder %>" required>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: var(--space-2);">Add Lesson</button>
+        </form>
+      </aside>
+
+      <!-- Lessons Table / List -->
+      <section class="main-content-card">
+        <h3 style="font-size: 1.25rem; margin-bottom: var(--space-3);">Ordered Curriculum (<%= lessons.length %> Lessons)</h3>
+
+        <% if (lessons && lessons.length > 0) { %>
+          <div style="overflow-x: auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width: 60px;">Order</th>
+                  <th>Title</th>
+                  <th>Type</th>
+                  <th>Content Link</th>
+                  <th>Duration</th>
+                  <th style="text-align: right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% lessons.forEach(lesson => { %>
+                  <tr>
+                    <td style="font-weight: 700; color: var(--ink-navy); text-align: center;"><%= lesson.order_index %></td>
+                    <td><strong><%= lesson.title %></strong></td>
+                    <td style="text-transform: uppercase; font-size: 0.8rem;"><%= lesson.content_type %></td>
+                    <td>
+                      <code style="font-size: 0.8rem; color: var(--text-muted); background: var(--parchment); padding: 2px 6px; border-radius: 4px; max-width: 180px; display: inline-block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        <%= lesson.content_url %>
+                      </code>
+                    </td>
+                    <td><%= lesson.duration ? `${lesson.duration}m` : '—' %></td>
+                    <td style="text-align: right;">
+                      <form action="/courses/<%= course.course_id %>/lessons/<%= lesson.lesson_id %>/delete" method="POST" style="display: inline;" onsubmit="return confirm('Delete this lesson?');">
+                        <button type="submit" class="btn btn-secondary btn-sm" style="color: var(--danger); border-color: #F5B7B1;">Delete</button>
+                      </form>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } else { %>
+          <div style="padding: var(--space-6); text-align: center; color: var(--text-muted);">
+            No lessons added yet. Use the form on the left to add the first lesson to this course.
+          </div>
+        <% } %>
+      </section>
+    </div>
+  </main>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

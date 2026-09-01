@@ -1,0 +1,19 @@
+<% if (typeof success_msg !== 'undefined' && success_msg && success_msg.length > 0) { %>
+  <div class="alert alert-success">
+    <% if (Array.isArray(success_msg)) { %>
+      <%= success_msg.join(' ') %>
+    <% } else { %>
+      <%= success_msg %>
+    <% } %>
+  </div>
+<% } %>
+
+<% if (typeof error_msg !== 'undefined' && error_msg && error_msg.length > 0) { %>
+  <div class="alert alert-danger">
+    <% if (Array.isArray(error_msg)) { %>
+      <%= error_msg.join(' ') %>
+    <% } else { %>
+      <%= error_msg %>
+    <% } %>
+  </div>
+<% } %>

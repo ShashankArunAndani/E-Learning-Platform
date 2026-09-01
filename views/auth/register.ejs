@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head') %>
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <main class="container">
+    <div class="auth-wrapper" style="max-width: 540px;">
+      <div class="auth-header">
+        <h2>Create an Account</h2>
+        <p>Join as a Student or register as an Instructor</p>
+      </div>
+
+      <%- include('../partials/flash') %>
+
+      <form action="/register" method="POST" id="registerForm">
+        <div class="form-group">
+          <label class="form-label">I am joining as a:</label>
+          <div class="role-selector">
+            <div class="role-option <%= (typeof formData === 'undefined' || !formData.role || formData.role === 'Student') ? 'selected' : '' %>" id="optStudent">
+              <input type="radio" id="roleStudent" name="role" value="Student" <%= (typeof formData === 'undefined' || !formData.role || formData.role === 'Student') ? 'checked' : '' %>>
+              <label for="roleStudent">Student</label>
+            </div>
+            <div class="role-option <%= (typeof formData !== 'undefined' && formData.role === 'Instructor') ? 'selected' : '' %>" id="optInstructor">
+              <input type="radio" id="roleInstructor" name="role" value="Instructor" <%= (typeof formData !== 'undefined' && formData.role === 'Instructor') ? 'checked' : '' %>>
+              <label for="roleInstructor">Instructor</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="name" class="form-label">Full Name</label>
+          <input 
+            type="text" 
+            id="name" 
+            name="name" 
+            class="form-control" 
+            placeholder="Jane Doe" 
+            value="<%= typeof formData !== 'undefined' && formData.name ? formData.name : '' %>" 
+            required 
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="email" class="form-label">Email Address</label>
+          <input 
+            type="email" 
+            id="email" 
+            name="email" 
+            class="form-control" 
+            placeholder="you@example.com" 
+            value="<%= typeof formData !== 'undefined' && formData.email ? formData.email : '' %>" 
+            required 
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="phone" class="form-label">Phone Number (Optional)</label>
+          <input 
+            type="tel" 
+            id="phone" 
+            name="phone" 
+            class="form-control" 
+            placeholder="+1 234 567 890" 
+            value="<%= typeof formData !== 'undefined' && formData.phone ? formData.phone : '' %>" 
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="password" class="form-label">Password</label>
+          <input 
+            type="password" 
+            id="password" 
+            name="password" 
+            class="form-control" 
+            placeholder="Minimum 6 characters" 
+            required 
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="confirm_password" class="form-label">Confirm Password</label>
+          <input 
+            type="password" 
+            id="confirm_password" 
+            name="confirm_password" 
+            class="form-control" 
+            placeholder="Re-enter password" 
+            required 
+          >
+        </div>
+
+        <!-- Instructor Specific Fields -->
+        <div id="instructorFields" style="display: <%= (typeof formData !== 'undefined' && formData.role === 'Instructor') ? 'block' : 'none' %>; border-top: 1px solid var(--border-subtle); padding-top: var(--space-3); margin-top: var(--space-3);">
+          <h4 style="font-size: 1rem; margin-bottom: var(--space-2); color: var(--ink-navy);">Instructor Profile Information</h4>
+          
+          <div class="form-group">
+            <label for="expertise" class="form-label">Primary Expertise</label>
+            <input 
+              type="text" 
+              id="expertise" 
+              name="expertise" 
+              class="form-control" 
+              placeholder="e.g. Computer Science, Web Development" 
+              value="<%= typeof formData !== 'undefined' && formData.expertise ? formData.expertise : '' %>" 
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="experienceYears" class="form-label">Years of Experience</label>
+            <input 
+              type="number" 
+              id="experienceYears" 
+              name="experienceYears" 
+              class="form-control" 
+              min="0" 
+              placeholder="5" 
+              value="<%= typeof formData !== 'undefined' && formData.experienceYears ? formData.experienceYears : '0' %>" 
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="bio" class="form-label">Short Biography</label>
+            <textarea 
+              id="bio" 
+              name="bio" 
+              class="form-control" 
+              rows="3" 
+              placeholder="Tell students about your academic or professional background..."
+            ><%= typeof formData !== 'undefined' && formData.bio ? formData.bio : '' %></textarea>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: var(--space-3);">
+          Complete Registration
+        </button>
+      </form>
+
+      <div style="text-align: center; margin-top: var(--space-4); font-size: 0.9rem; color: var(--text-muted);">
+        Already have an account? <a href="/login" style="font-weight: 600;">Sign in here</a>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const radioStudent = document.getElementById('roleStudent');
+    const radioInstructor = document.getElementById('roleInstructor');
+    const optStudent = document.getElementById('optStudent');
+    const optInstructor = document.getElementById('optInstructor');
+    const instructorFields = document.getElementById('instructorFields');
+
+    function updateRoleUI() {
+      if (radioInstructor.checked) {
+        optInstructor.classList.add('selected');
+        optStudent.classList.remove('selected');
+        instructorFields.style.display = 'block';
+      } else {
+        optStudent.classList.add('selected');
+        optInstructor.classList.remove('selected');
+        instructorFields.style.display = 'none';
+      }
+    }
+
+    optStudent.addEventListener('click', () => {
+      radioStudent.checked = true;
+      updateRoleUI();
+    });
+
+    optInstructor.addEventListener('click', () => {
+      radioInstructor.checked = true;
+      updateRoleUI();
+    });
+  </script>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head') %>
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <main class="container" style="padding-top: var(--space-4);">
+    <div style="margin-top: var(--space-2);">
+      <%- include('../partials/flash') %>
+    </div>
+
+    <div style="max-width: 800px; margin: 0 auto var(--space-8);">
+      <div style="background: var(--white); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-6); box-shadow: var(--shadow-elevated);">
+        
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border-subtle); padding-bottom: var(--space-4); margin-bottom: var(--space-4);">
+          <div>
+            <span class="user-badge" style="background: var(--gold); color: var(--ink-navy); font-weight: 700; margin-bottom: 4px; inline-block;">TEST SANDBOX GATEWAY</span>
+            <h1 style="font-size: 2rem;">Checkout Order #<%= order.order_id %></h1>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">Created on <%= new Date(order.created_at).toLocaleString() %></div>
+          </div>
+
+          <div style="text-align: right;">
+            <div style="font-size: 0.85rem; color: var(--text-muted);">Total Amount</div>
+            <div style="font-family: var(--font-display); font-size: 2.25rem; font-weight: 700; color: var(--ink-navy);">$<%= parseFloat(order.total_amount).toFixed(2) %></div>
+          </div>
+        </div>
+
+        <!-- Order Items Breakdown -->
+        <h3 style="font-size: 1.15rem; margin-bottom: var(--space-3);">Order Summary</h3>
+        <div style="background: var(--parchment); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: var(--space-3); margin-bottom: var(--space-4);">
+          <% order.items.forEach((item, index) => { %>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: var(--space-2) 0; border-bottom: <%= index < order.items.length - 1 ? '1px solid var(--border-subtle)' : 'none' %>;">
+              <div>
+                <strong style="color: var(--ink-navy);"><%= item.course_title %></strong>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">Instructor: <%= item.instructor_name %></div>
+              </div>
+              <div style="font-weight: 600; font-family: var(--font-display); color: var(--ink-navy);">$<%= parseFloat(item.price_at_purchase).toFixed(2) %></div>
+            </div>
+          <% }); %>
+
+          <div style="border-top: 1px solid var(--border-subtle); margin-top: var(--space-2); padding-top: var(--space-2); font-size: 0.9rem;">
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: var(--text-muted);">Subtotal</span>
+              <span>$<%= parseFloat(order.subtotal_amount).toFixed(2) %></span>
+            </div>
+            <% if (parseFloat(order.discount_amount) > 0) { %>
+              <div style="display: flex; justify-content: space-between; color: var(--verdant);">
+                <span>Coupon Discount (<%= order.coupon_code || 'APPLIED' %>)</span>
+                <span>-$<%= parseFloat(order.discount_amount).toFixed(2) %></span>
+              </div>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- Payment Form -->
+        <form action="/checkout/<%= order.order_id %>/pay" method="POST" id="paymentForm">
+          <h3 style="font-size: 1.15rem; margin-bottom: var(--space-2);">Payment Gateway Simulation</h3>
+          <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: var(--space-4);">
+            Select a payment method and test payment outcome below. Successful payment will atomically create your enrollment and progress tracking records.
+          </p>
+
+          <div class="form-group">
+            <label for="payment_method" class="form-label">Select Payment Method</label>
+            <select id="payment_method" name="payment_method" class="form-control">
+              <option value="card">Credit / Debit Card (Sandbox Test Mode)</option>
+              <option value="stripe">Stripe Test Mode</option>
+              <option value="paypal">PayPal Sandbox</option>
+            </select>
+          </div>
+
+          <div style="background: #F8F9FA; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: var(--space-3); margin-bottom: var(--space-4);">
+            <div style="font-size: 0.85rem; font-weight: 600; color: var(--ink-navy); margin-bottom: 4px;">Test Card Details (Pre-filled):</div>
+            <div style="font-family: monospace; font-size: 0.85rem; color: var(--text-muted);">
+              Card Number: 4242 •••• •••• 4242 &nbsp;|&nbsp; Exp: 12/28 &nbsp;|&nbsp; CVC: 123
+            </div>
+          </div>
+
+          <input type="hidden" name="simulate_outcome" id="simulate_outcome" value="success">
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3);">
+            <button type="submit" class="btn btn-primary" onclick="document.getElementById('simulate_outcome').value='success';" style="background: var(--verdant); border-color: var(--verdant);">
+              ✓ Simulate Payment SUCCESS
+            </button>
+
+            <button type="submit" class="btn btn-secondary" onclick="document.getElementById('simulate_outcome').value='failure';" style="color: var(--danger); border-color: #F5B7B1;">
+              ✕ Simulate Payment FAILURE
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </main>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

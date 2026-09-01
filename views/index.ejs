@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body>
+  <%- include('partials/navbar') %>
+
+  <main>
+    <section class="hero-section">
+      <div class="container">
+        <%- include('partials/flash') %>
+        
+        <div class="hero-grid">
+          <div class="hero-content">
+            <h1>Learn something that actually counts.</h1>
+            <p>
+              Acquire verified skills from industry experts. Complete courses to earn tamper-proof digital credentials ready to share on your professional profile.
+            </p>
+            <div class="hero-actions">
+              <% if (user) { %>
+                <a href="/dashboard" class="btn btn-primary">Go to Dashboard &rarr;</a>
+              <% } else { %>
+                <a href="/register" class="btn btn-primary">Create Your Account</a>
+                <a href="/login" class="btn btn-secondary">Sign In</a>
+              <% } %>
+            </div>
+          </div>
+
+          <div class="hero-visual">
+            <div class="cert-mockup-card">
+              <div class="cert-mockup-border">
+                <div class="cert-title">Certificate of Completion</div>
+                <div class="cert-subtitle">ACADEMIA VERIFIED CREDENTIAL</div>
+                <div style="font-size: 0.8rem; color: #6B6F76;">This certifies that</div>
+                <div class="cert-name">Jane Doe</div>
+                <div style="font-size: 0.8rem; color: #6B6F76;">has successfully mastered</div>
+                <div class="cert-course">Advanced Full-Stack Engineering</div>
+                <div class="gold-seal-graphic">VERIFIED</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section style="padding: var(--space-8) 0; background: var(--white); border-bottom: 1px solid var(--border-subtle);">
+      <div class="container">
+        <div style="text-align: center; max-width: 680px; margin: 0 auto var(--space-6);">
+          <h2 style="font-size: 2rem;">Designed for Institutional Credibility</h2>
+          <p style="color: var(--text-muted); margin-top: var(--space-2);">
+            Our platform focuses on measurable progress, rigorous assessments, and authentic certification.
+          </p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-4);">
+          <div style="padding: var(--space-4); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
+            <h3 style="margin-bottom: var(--space-2);">Structured Learning</h3>
+            <p style="color: var(--text-muted); font-size: 0.925rem;">
+              Sequential lessons with video, text, and documents ensuring thorough mastery before progress.
+            </p>
+          </div>
+
+          <div style="padding: var(--space-4); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
+            <h3 style="margin-bottom: var(--space-2);">Role-Based Workspaces</h3>
+            <p style="color: var(--text-muted); font-size: 0.925rem;">
+              Customized interfaces for Students, Instructors, and Administrators with role-based access control.
+            </p>
+          </div>
+
+          <div style="padding: var(--space-4); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
+            <h3 style="margin-bottom: var(--space-2);">Verifiable Certificates</h3>
+            <p style="color: var(--text-muted); font-size: 0.925rem;">
+              Unique credential URLs generated automatically upon 100% course completion.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

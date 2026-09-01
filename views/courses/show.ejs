@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head') %>
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <main>
+    <!-- Course Detail Hero -->
+    <section style="background: var(--ink-navy); color: var(--parchment); padding: var(--space-6) 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+      <div class="container">
+        <%- include('../partials/flash') %>
+
+        <div style="display: flex; gap: var(--space-2); margin-bottom: var(--space-3);">
+          <% course.categories.forEach(cat => { %>
+            <span class="user-badge" style="background: var(--deep-indigo); color: var(--gold); border: 1px solid var(--gold);"><%= cat.category_name %></span>
+          <% }); %>
+          <span class="user-badge" style="background: rgba(255,255,255,0.1); text-transform: capitalize;"><%= course.level %> Level</span>
+          <% if (course.status === 'draft') { %>
+            <span class="user-badge" style="background: #C0392B; color: #FFF;">DRAFT (Unpublished)</span>
+          <% } %>
+        </div>
+
+        <h1 style="color: var(--parchment); font-size: 2.75rem; margin-bottom: var(--space-3);"><%= course.title %></h1>
+        <p style="color: #D2D7E0; font-size: 1.1rem; max-width: 760px; margin-bottom: var(--space-4); line-height: 1.6;">
+          <%= course.description %>
+        </p>
+
+        <div style="display: flex; align-items: center; gap: var(--space-4); font-size: 0.95rem; color: #A0A8B8;">
+          <div>Instructed by: <strong style="color: var(--parchment);"><%= course.instructor_name %></strong></div>
+          <div><%= course.lessons.length %> Lessons</div>
+          <div><%= course.duration ? `${course.duration} minutes total` : '' %></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Content & Sidebar -->
+    <section class="container" style="padding: var(--space-6) 0;">
+      <div style="display: grid; grid-template-columns: 1fr 340px; gap: var(--space-6);">
+        
+        <!-- Left: Curriculum Outline -->
+        <div>
+          <h2 style="font-size: 1.75rem; margin-bottom: var(--space-3);">Course Curriculum</h2>
+          <p style="color: var(--text-muted); margin-bottom: var(--space-4);">
+            Sequential curriculum outline. Full lesson content access is unlocked upon enrollment.
+          </p>
+
+          <% if (course.lessons && course.lessons.length > 0) { %>
+            <div style="background: var(--white); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-subtle);">
+              <% course.lessons.forEach((lesson, index) => { %>
+                <div style="padding: var(--space-3) var(--space-4); border-bottom: <%= index < course.lessons.length - 1 ? '1px solid var(--border-subtle)' : 'none' %>; display: flex; justify-content: space-between; align-items: center;">
+                  <div style="display: flex; align-items: center; gap: var(--space-3);">
+                    <div style="width: 28px; height: 28px; border-radius: 50%; background: var(--parchment); border: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 600; color: var(--ink-navy);">
+                      <%= lesson.order_index %>
+                    </div>
+                    <div>
+                      <div style="font-weight: 600; color: var(--ink-navy);"><%= lesson.title %></div>
+                      <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);"><%= lesson.content_type %> <%= lesson.duration ? `• ${lesson.duration} mins` : '' %></span>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; align-items: center; gap: var(--space-2);">
+                    <span style="font-size: 0.8rem; color: var(--text-muted); background: var(--parchment); padding: 2px 8px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+                      Locked 🔒
+                    </span>
+                  </div>
+                </div>
+              <% }); %>
+            </div>
+          <% } else { %>
+            <div style="padding: var(--space-6); background: var(--white); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); text-align: center; color: var(--text-muted);">
+              No lessons have been added to this course curriculum yet.
+            </div>
+          <% } %>
+
+          <!-- Instructor Bio Section -->
+          <div style="margin-top: var(--space-6); background: var(--white); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-4);">
+            <h3 style="font-size: 1.35rem; margin-bottom: var(--space-2);">About the Instructor</h3>
+            <div style="display: flex; gap: var(--space-3); align-items: flex-start;">
+              <div class="avatar-circle" style="margin: 0; width: 48px; height: 48px; font-size: 1.25rem;"><%= course.instructor_name.charAt(0) %></div>
+              <div>
+                <h4 style="font-size: 1.1rem; color: var(--ink-navy);"><%= course.instructor_name %></h4>
+                <div style="font-size: 0.85rem; color: var(--verdant); margin-bottom: var(--space-1);"><%= course.instructor_expertise || 'Professional Educator' %></div>
+                <p style="font-size: 0.9rem; color: var(--text-muted);"><%= course.instructor_bio || 'Experienced course instructor dedicated to professional academic excellence.' %></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Sidebar Price & Enrollment Card -->
+        <div>
+          <div style="background: var(--white); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-4); box-shadow: var(--shadow-elevated); position: sticky; top: var(--space-4);">
+            <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Tuition Fee</div>
+            <div style="font-family: var(--font-display); font-size: 2.25rem; font-weight: 700; color: var(--ink-navy); margin-bottom: var(--space-3);">
+              <%= course.price > 0 ? `$${parseFloat(course.price).toFixed(2)}` : 'Free' %>
+            </div>
+
+            <% if (isOwner) { %>
+              <a href="/courses/<%= course.course_id %>/edit" class="btn btn-secondary" style="width: 100%; margin-bottom: var(--space-2);">Edit Course Settings</a>
+              <a href="/courses/<%= course.course_id %>/lessons" class="btn btn-primary" style="width: 100%;">Manage Curriculum</a>
+            <% } else { %>
+              <form action="/cart/add" method="POST" style="margin-bottom: var(--space-2);">
+                <input type="hidden" name="course_id" value="<%= course.course_id %>">
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                  Add to Cart 🛒
+                </button>
+              </form>
+
+              <form action="/wishlist/add" method="POST">
+                <input type="hidden" name="course_id" value="<%= course.course_id %>">
+                <button type="submit" class="btn btn-secondary" style="width: 100%;">
+                  Add to Wishlist ♡
+                </button>
+              </form>
+
+              <div style="font-size: 0.8rem; color: var(--text-muted); text-align: center; margin-top: var(--space-3);">
+                Includes certificate of completion upon 100% progress.
+              </div>
+            <% } %>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

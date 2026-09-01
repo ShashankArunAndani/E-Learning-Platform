@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head') %>
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <main class="container" style="padding-top: var(--space-4);">
+    <div style="margin-top: var(--space-2);">
+      <%- include('../partials/flash') %>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4);">
+      <div>
+        <h1 style="font-size: 2.25rem;">Order History</h1>
+        <p style="color: var(--text-muted);">View past course purchases and transactions.</p>
+      </div>
+
+      <span class="user-badge" style="background: var(--ink-navy);"><%= orders.length %> Orders</span>
+    </div>
+
+    <% if (orders && orders.length > 0) { %>
+      <div style="background: var(--white); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-subtle); margin-bottom: var(--space-8);">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Date</th>
+              <th>Items</th>
+              <th>Total Amount</th>
+              <th>Status</th>
+              <th style="text-align: right;">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% orders.forEach(o => { %>
+              <tr>
+                <td><strong>#<%= o.order_id %></strong></td>
+                <td style="color: var(--text-muted);"><%= new Date(o.created_at).toLocaleDateString() %></td>
+                <td><%= o.item_count %> Courses</td>
+                <td style="font-family: var(--font-display); font-weight: 700;">$<%= parseFloat(o.total_amount).toFixed(2) %></td>
+                <td>
+                  <% if (o.status === 'completed') { %>
+                    <span class="user-badge" style="background: #E8F4F1; color: var(--verdant); border: 1px solid #B2D9D0;">Completed</span>
+                  <% } else if (o.status === 'pending') { %>
+                    <span class="user-badge" style="background: #FFF3CD; color: #856404; border: 1px solid #FFEEBA;">Pending Payment</span>
+                  <% } else if (o.status === 'failed') { %>
+                    <span class="user-badge" style="background: var(--danger-bg); color: var(--danger); border: 1px solid #F5B7B1;">Failed</span>
+                  <% } else { %>
+                    <span class="user-badge" style="background: #E2E3E5; color: #383D41;">Cancelled</span>
+                  <% } %>
+                </td>
+                <td style="text-align: right;">
+                  <% if (o.status === 'completed') { %>
+                    <a href="/orders/<%= o.order_id %>/success" class="btn btn-secondary btn-sm">Receipt &rarr;</a>
+                  <% } else if (o.status === 'pending' || o.status === 'failed') { %>
+                    <a href="/checkout/<%= o.order_id %>" class="btn btn-primary btn-sm">Pay Now &rarr;</a>
+                  <% } %>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    <% } else { %>
+      <div style="background: var(--white); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-8); text-align: center;">
+        <h3 style="font-size: 1.5rem; color: var(--ink-navy); margin-bottom: var(--space-2);">No Orders Found</h3>
+        <p style="color: var(--text-muted); max-width: 480px; margin: 0 auto var(--space-4);">
+          You haven't placed any orders yet. Browse our catalog to find courses!
+        </p>
+        <a href="/courses" class="btn btn-primary">Browse Courses</a>
+      </div>
+    <% } %>
+  </main>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

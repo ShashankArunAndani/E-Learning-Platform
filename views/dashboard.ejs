@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body>
+  <%- include('partials/navbar') %>
+
+  <main class="container">
+    <div style="margin-top: var(--space-4);">
+      <%- include('partials/flash') %>
+    </div>
+
+    <div class="dashboard-grid">
+      <!-- Left Sidebar User Profile Card -->
+      <aside class="sidebar-card">
+        <div class="user-profile-summary">
+          <div class="avatar-circle"><%= user.name.charAt(0).toUpperCase() %></div>
+          <h3 style="font-size: 1.15rem;"><%= user.name %></h3>
+          <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: var(--space-2);"><%= user.email %></div>
+          <span class="user-badge" style="background: var(--ink-navy);"><%= user.role_name %></span>
+        </div>
+
+        <div style="font-size: 0.85rem;">
+          <strong style="color: var(--ink-navy); display: block; margin-bottom: var(--space-1);">Role Permissions:</strong>
+          <div class="permission-pills">
+            <% permissions.forEach(p => { %>
+              <span class="perm-pill"><%= p %></span>
+            <% }); %>
+          </div>
+        </div>
+
+        <div style="margin-top: var(--space-4); border-top: 1px solid var(--border-subtle); padding-top: var(--space-3);">
+          <a href="/logout" class="btn btn-secondary btn-sm" style="width: 100%;">Sign Out</a>
+        </div>
+      </aside>
+
+      <!-- Main Workspace Section -->
+      <section class="main-content-card">
+        <% if (typeof panelMode !== 'undefined' && panelMode === 'admin') { %>
+          <h2>Admin Control Center</h2>
+          <p style="color: var(--text-muted); margin-bottom: var(--space-4);">
+            Platform audit log and administrative controls (Phase 1 Access Control Active).
+          </p>
+
+          <h3 style="font-size: 1.1rem; margin-top: var(--space-4);">Recent System Activity Log</h3>
+          <% if (typeof recentLogs !== 'undefined' && recentLogs.length > 0) { %>
+            <div style="overflow-x: auto;">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Log ID</th>
+                    <th>User</th>
+                    <th>Action</th>
+                    <th>IP Address</th>
+                    <th>Timestamp</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% recentLogs.forEach(log => { %>
+                    <tr>
+                      <td>#<%= log.log_id %></td>
+                      <td><strong><%= log.name || 'System' %></strong><br><small><%= log.email || '' %></small></td>
+                      <td><code style="background: var(--parchment); padding: 2px 6px; border-radius: 4px;"><%= log.action %></code></td>
+                      <td><%= log.ip_address || 'N/A' %></td>
+                      <td><%= new Date(log.event_time).toLocaleString() %></td>
+                    </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+          <% } else { %>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">No activity log records found.</p>
+          <% } %>
+
+        <% } else if (typeof panelMode !== 'undefined' && panelMode === 'instructor') { %>
+          <h2>Instructor Workspace</h2>
+          <p style="color: var(--text-muted); margin-bottom: var(--space-4);">
+            Manage your courses, lessons, assignments, and student grades.
+          </p>
+
+          <% if (instructorData) { %>
+            <div style="background: var(--parchment); padding: var(--space-3); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); margin-bottom: var(--space-4);">
+              <h4 style="font-size: 1rem; color: var(--ink-navy); margin-bottom: var(--space-1);">Instructor Profile</h4>
+              <p><strong>Expertise:</strong> <%= instructorData.expertise || 'Not set' %></p>
+              <p><strong>Experience:</strong> <%= instructorData.experience_years %> years</p>
+              <p><strong>Rating:</strong> <%= instructorData.rating.toFixed(1) %> / 5.0</p>
+              <p style="margin-top: var(--space-2); color: var(--text-muted);"><%= instructorData.bio || 'No bio provided yet.' %></p>
+            </div>
+          <% } %>
+
+          <div style="padding: var(--space-4); border: 1px dashed var(--border-subtle); text-align: center; border-radius: var(--radius-sm);">
+            <p style="color: var(--text-muted);">Course Creation & Lesson Management ready for Phase 2.</p>
+          </div>
+
+        <% } else { %>
+          <h2>Welcome, <%= user.name %>!</h2>
+          <p style="color: var(--text-muted); margin-bottom: var(--space-4);">
+            Your authentication and access control session is active.
+          </p>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-3); margin-top: var(--space-4);">
+            <div style="padding: var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); background: var(--parchment);">
+              <h4 style="color: var(--ink-navy);">Account Status</h4>
+              <p style="font-size: 1.25rem; font-weight: 600; color: var(--verdant); margin-top: var(--space-1);">Active</p>
+            </div>
+
+            <div style="padding: var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); background: var(--parchment);">
+              <h4 style="color: var(--ink-navy);">Role Assignment</h4>
+              <p style="font-size: 1.25rem; font-weight: 600; color: var(--ink-navy); margin-top: var(--space-1);"><%= user.role_name %></p>
+            </div>
+
+            <div style="padding: var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); background: var(--parchment);">
+              <h4 style="color: var(--ink-navy);">Security Policy</h4>
+              <p style="font-size: 1.25rem; font-weight: 600; color: var(--gold); margin-top: var(--space-1);">RBAC Active</p>
+            </div>
+          </div>
+        <% } %>
+      </section>
+    </div>
+  </main>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

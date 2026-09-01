@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head') %>
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <main class="container" style="padding-top: var(--space-4);">
+    <div style="margin-top: var(--space-2);">
+      <%- include('../partials/flash') %>
+    </div>
+
+    <div class="dashboard-grid">
+      <!-- Create Coupon Sidebar Form -->
+      <aside class="sidebar-card">
+        <h3 style="font-size: 1.15rem; margin-bottom: var(--space-3);">Create Coupon Code</h3>
+        
+        <form action="/coupons" method="POST">
+          <div class="form-group">
+            <label for="code" class="form-label">Coupon Code *</label>
+            <input type="text" id="code" name="code" class="form-control" placeholder="e.g. WELCOME10" required style="text-transform: uppercase;">
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2);">
+            <div class="form-group">
+              <label for="discount_type" class="form-label">Type *</label>
+              <select id="discount_type" name="discount_type" class="form-control" required>
+                <option value="percent">Percent (%)</option>
+                <option value="flat">Flat ($)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="discount_value" class="form-label">Value *</label>
+              <input type="number" step="0.01" min="0.01" id="discount_value" name="discount_value" class="form-control" placeholder="10" required>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2);">
+            <div class="form-group">
+              <label for="min_order_amount" class="form-label">Min Order ($)</label>
+              <input type="number" step="0.01" min="0" id="min_order_amount" name="min_order_amount" class="form-control" placeholder="0.00">
+            </div>
+
+            <div class="form-group">
+              <label for="max_discount_amount" class="form-label">Max Disc ($)</label>
+              <input type="number" step="0.01" min="0" id="max_discount_amount" name="max_discount_amount" class="form-control" placeholder="Optional">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="valid_from" class="form-label">Valid From *</label>
+            <input type="date" id="valid_from" name="valid_from" class="form-control" required>
+          </div>
+
+          <div class="form-group">
+            <label for="valid_to" class="form-label">Valid To *</label>
+            <input type="date" id="valid_to" name="valid_to" class="form-control" required>
+          </div>
+
+          <div class="form-group">
+            <label for="usage_limit" class="form-label">Usage Limit (Max Uses)</label>
+            <input type="number" min="1" id="usage_limit" name="usage_limit" class="form-control" placeholder="Optional (e.g. 100)">
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%;">Create Coupon</button>
+        </form>
+      </aside>
+
+      <!-- Coupon List Table -->
+      <section class="main-content-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4);">
+          <h2>Platform Coupons</h2>
+          <span class="user-badge" style="background: var(--ink-navy);"><%= coupons.length %> Active / Created</span>
+        </div>
+
+        <% if (coupons && coupons.length > 0) { %>
+          <div style="overflow-x: auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Code</th>
+                  <th>Discount</th>
+                  <th>Min Order</th>
+                  <th>Valid Window</th>
+                  <th>Usage</th>
+                  <th>Status</th>
+                  <th style="text-align: right;">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% coupons.forEach(c => { %>
+                  <tr>
+                    <td><strong style="font-family: monospace; font-size: 1rem; color: var(--ink-navy);"><%= c.code %></strong></td>
+                    <td>
+                      <%= c.discount_type === 'percent' ? `${c.discount_value}%` : `$${parseFloat(c.discount_value).toFixed(2)}` %>
+                      <% if (c.max_discount_amount) { %><br><small style="color: var(--text-muted);">Cap: $<%= parseFloat(c.max_discount_amount).toFixed(2) %></small><% } %>
+                    </td>
+                    <td>$<%= parseFloat(c.min_order_amount || 0).toFixed(2) %></td>
+                    <td style="font-size: 0.8rem; color: var(--text-muted);">
+                      <%= new Date(c.valid_from).toLocaleDateString() %> - <%= new Date(c.valid_to).toLocaleDateString() %>
+                    </td>
+                    <td><%= c.times_used %> <%= c.usage_limit ? `/ ${c.usage_limit}` : 'uses' %></td>
+                    <td>
+                      <% if (c.is_active) { %>
+                        <span class="user-badge" style="background: #E8F4F1; color: var(--verdant); border: 1px solid #B2D9D0;">Active</span>
+                      <% } else { %>
+                        <span class="user-badge" style="background: #E2E3E5; color: #383D41;">Inactive</span>
+                      <% } %>
+                    </td>
+                    <td style="text-align: right;">
+                      <form action="/coupons/<%= c.coupon_id %>/toggle" method="POST" style="display: inline;">
+                        <button type="submit" class="btn btn-secondary btn-sm">
+                          <%= c.is_active ? 'Deactivate' : 'Activate' %>
+                        </button>
+                      </form>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } else { %>
+          <div style="padding: var(--space-6); text-align: center; color: var(--text-muted);">
+            No coupons created yet. Use the form on the left to add a promotional discount coupon.
+          </div>
+        <% } %>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    // Pre-fill valid_from with today and valid_to with 30 days from today
+    const today = new Date();
+    const future = new Date();
+    future.setDate(today.getDate() + 30);
+    document.getElementById('valid_from').value = today.toISOString().split('T')[0];
+    document.getElementById('valid_to').value = future.toISOString().split('T')[0];
+  </script>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

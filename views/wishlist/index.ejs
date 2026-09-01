@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head') %>
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <main class="container" style="padding-top: var(--space-4);">
+    <div style="margin-top: var(--space-2);">
+      <%- include('../partials/flash') %>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4);">
+      <div>
+        <h1 style="font-size: 2.25rem;">My Wishlist</h1>
+        <p style="color: var(--text-muted);">Saved courses for future enrollment.</p>
+      </div>
+
+      <span class="user-badge" style="background: var(--ink-navy);"><%= items.length %> Saved Items</span>
+    </div>
+
+    <% if (items && items.length > 0) { %>
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-8);">
+        <% items.forEach(item => { %>
+          <div style="background: var(--white); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-4); display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-subtle);">
+            <div>
+              <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--verdant); font-weight: 600; margin-bottom: var(--space-1);">
+                <%= item.level %> Level
+              </div>
+
+              <h3 style="font-size: 1.25rem; margin-bottom: var(--space-2);">
+                <a href="/courses/<%= item.course_id %>" style="color: var(--ink-navy);"><%= item.title %></a>
+              </h3>
+
+              <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: var(--space-3); line-clamp: 2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                <%= item.description %>
+              </p>
+            </div>
+
+            <div style="border-top: 1px solid var(--border-subtle); padding-top: var(--space-3); margin-top: var(--space-2);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-3);">
+                <div style="font-size: 0.85rem; color: var(--text-muted);">By <%= item.instructor_name %></div>
+                <div style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; color: var(--ink-navy);">
+                  <%= item.price > 0 ? `$${parseFloat(item.price).toFixed(2)}` : 'Free' %>
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr auto; gap: var(--space-2);">
+                <form action="/cart/add" method="POST">
+                  <input type="hidden" name="course_id" value="<%= item.course_id %>">
+                  <button type="submit" class="btn btn-primary btn-sm" style="width: 100%;">Add to Cart</button>
+                </form>
+
+                <form action="/wishlist/remove" method="POST">
+                  <input type="hidden" name="course_id" value="<%= item.course_id %>">
+                  <button type="submit" class="btn btn-secondary btn-sm" style="color: var(--danger); border-color: #F5B7B1;">Remove</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    <% } else { %>
+      <div style="background: var(--white); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-8); text-align: center;">
+        <h3 style="font-size: 1.5rem; color: var(--ink-navy); margin-bottom: var(--space-2);">Your Wishlist is Empty</h3>
+        <p style="color: var(--text-muted); max-width: 480px; margin: 0 auto var(--space-4);">
+          Browse our course catalog and save courses you are interested in for later!
+        </p>
+        <a href="/courses" class="btn btn-primary">Browse Courses</a>
+      </div>
+    <% } %>
+  </main>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

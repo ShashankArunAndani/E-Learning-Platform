@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head') %>
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <main class="container" style="padding-top: var(--space-6);">
+    <div style="max-width: 680px; margin: 0 auto var(--space-8); text-align: center;">
+      <div style="background: var(--white); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-6); box-shadow: var(--shadow-elevated);">
+        
+        <div style="width: 64px; height: 64px; background: #E8F4F1; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto var(--space-3); color: var(--verdant); font-size: 2rem;">
+          ✓
+        </div>
+
+        <h1 style="font-size: 2.25rem; color: var(--ink-navy); margin-bottom: var(--space-1);">Order Confirmed!</h1>
+        <p style="color: var(--text-muted); margin-bottom: var(--space-4);">
+          Thank you for your purchase. Your payment was processed and your courses have been successfully enrolled.
+        </p>
+
+        <div style="background: var(--parchment); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: var(--space-4); text-align: left; margin-bottom: var(--space-4);">
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-subtle); padding-bottom: var(--space-2); margin-bottom: var(--space-2); font-size: 0.875rem;">
+            <span>Order Number: <strong>#<%= order.order_id %></strong></span>
+            <span>Date: <strong><%= new Date(order.created_at).toLocaleDateString() %></strong></span>
+          </div>
+
+          <% if (order.payments && order.payments.length > 0) { %>
+            <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: var(--space-3);">
+              Transaction Reference: <code style="color: var(--ink-navy); font-weight: 600;"><%= order.payments[0].transaction_ref %></code>
+            </div>
+          <% } %>
+
+          <div style="font-weight: 600; color: var(--ink-navy); margin-bottom: var(--space-2); font-size: 0.95rem;">Enrolled Courses:</div>
+          <% order.items.forEach(item => { %>
+            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed var(--border-subtle); font-size: 0.9rem;">
+              <span><%= item.course_title %></span>
+              <strong style="color: var(--verdant);">Enrolled ✓</strong>
+            </div>
+          <% }); %>
+
+          <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 1.1rem; color: var(--ink-navy); margin-top: var(--space-3); padding-top: var(--space-2); border-top: 1px solid var(--border-subtle);">
+            <span>Total Paid</span>
+            <span>$<%= parseFloat(order.total_amount).toFixed(2) %></span>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: center; gap: var(--space-3);">
+          <a href="/orders" class="btn btn-secondary">View Order History</a>
+          <a href="/dashboard" class="btn btn-primary">Go to Dashboard &rarr;</a>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head') %>
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <main class="container" style="padding-top: var(--space-4);">
+    <%- include('../partials/flash') %>
+
+    <!-- Header & Search Controls -->
+    <div style="background: var(--white); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-4); margin-bottom: var(--space-6); box-shadow: var(--shadow-subtle);">
+      <div style="max-width: 600px; margin-bottom: var(--space-4);">
+        <h1 style="font-size: 2.25rem; margin-bottom: var(--space-1);">Explore Catalog</h1>
+        <p style="color: var(--text-muted);">Rigorous courses taught by experienced industry professionals.</p>
+      </div>
+
+      <form action="/courses" method="GET" style="display: grid; grid-template-columns: 1fr 200px 180px 100px; gap: var(--space-2); align-items: end;">
+        <div>
+          <label for="search" class="form-label">Search Courses</label>
+          <input type="text" id="search" name="search" class="form-control" placeholder="Search by title or topic..." value="<%= selectedSearch %>">
+        </div>
+
+        <div>
+          <label for="category_id" class="form-label">Category</label>
+          <select id="category_id" name="category_id" class="form-control">
+            <option value="">All Categories</option>
+            <% categories.forEach(cat => { %>
+              <option value="<%= cat.category_id %>" <%= selectedCategory == cat.category_id ? 'selected' : '' %>><%= cat.category_name %></option>
+            <% }); %>
+          </select>
+        </div>
+
+        <div>
+          <label for="level" class="form-label">Difficulty Level</label>
+          <select id="level" name="level" class="form-control">
+            <option value="">All Levels</option>
+            <option value="beginner" <%= selectedLevel === 'beginner' ? 'selected' : '' %>>Beginner</option>
+            <option value="intermediate" <%= selectedLevel === 'intermediate' ? 'selected' : '' %>>Intermediate</option>
+            <option value="advanced" <%= selectedLevel === 'advanced' ? 'selected' : '' %>>Advanced</option>
+          </select>
+        </div>
+
+        <div>
+          <button type="submit" class="btn btn-primary" style="width: 100%;">Filter</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Course Grid -->
+    <% if (courses && courses.length > 0) { %>
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-8);">
+        <% courses.forEach(course => { %>
+          <div style="background: var(--white); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-4); display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-subtle); transition: transform 0.15s ease;">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-2);">
+                <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--verdant); font-weight: 600;">
+                  <%= course.category_names || 'General' %>
+                </span>
+                <span style="background: var(--parchment); border: 1px solid var(--border-subtle); font-size: 0.75rem; padding: 2px 8px; border-radius: var(--radius-sm); text-transform: capitalize;">
+                  <%= course.level %>
+                </span>
+              </div>
+
+              <h3 style="font-size: 1.35rem; margin-bottom: var(--space-2); line-height: 1.25;">
+                <a href="/courses/<%= course.course_id %>"><%= course.title %></a>
+              </h3>
+
+              <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: var(--space-3); line-clamp: 3; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+                <%= course.description || 'No description provided.' %>
+              </p>
+            </div>
+
+            <div style="border-top: 1px solid var(--border-subtle); padding-top: var(--space-3); margin-top: var(--space-2); display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">Instructor: <strong><%= course.instructor_name %></strong></div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);"><%= course.lesson_count || 0 %> Lessons <%= course.duration ? `• ${course.duration} mins` : '' %></div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; color: var(--ink-navy);">
+                  <%= course.price > 0 ? `$${parseFloat(course.price).toFixed(2)}` : 'Free' %>
+                </div>
+                <a href="/courses/<%= course.course_id %>" class="btn btn-primary btn-sm" style="margin-top: 4px;">View &rarr;</a>
+              </div>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    <% } else { %>
+      <div style="background: var(--white); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-8); text-align: center;">
+        <h3 style="font-size: 1.5rem; color: var(--ink-navy); margin-bottom: var(--space-2);">No Courses Found</h3>
+        <p style="color: var(--text-muted); max-width: 480px; margin: 0 auto var(--space-4);">
+          No published courses matched your filter criteria. Try searching for a different keyword or resetting filters.
+        </p>
+        <a href="/courses" class="btn btn-secondary">Reset Filters</a>
+      </div>
+    <% } %>
+  </main>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

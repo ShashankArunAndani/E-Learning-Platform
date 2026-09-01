@@ -1,0 +1,298 @@
+erDiagram
+
+    %% ============ USER & ACCESS CONTROL ============
+    Roles ||--o{ Users : "has"
+    Roles ||--o{ Role_Permissions : "assigned_to"
+    Permissions ||--o{ Role_Permissions : "grants"
+    Users ||--o| Instructor_Profile : "is"
+    Users ||--o{ Activity_Log : "generates"
+
+    %% ============ COURSE & CONTENT MANAGEMENT ============
+    Users ||--o{ Courses : "teaches"
+    Courses ||--o{ Course_Category : "categorized_as"
+    Categories ||--o{ Course_Category : "groups"
+    Courses ||--o{ Lessons : "contains"
+
+    %% ============ CART, WISHLIST, COUPONS, ORDERS ============
+    Users ||--o| Cart : "owns"
+    Cart ||--o{ Cart_Items : "contains"
+    Courses ||--o{ Cart_Items : "added_to"
+    Users ||--o{ Wishlist : "saves"
+    Courses ||--o{ Wishlist : "saved_in"
+    Coupons ||--o{ Orders : "applied_to"
+    Users ||--o{ Orders : "places"
+    Orders ||--o{ Order_Items : "contains"
+    Courses ||--o{ Order_Items : "purchased_in"
+    Orders ||--o{ Payments : "paid_by"
+
+    %% ============ ENROLLMENT & LEARNING ============
+    Order_Items ||--o| Enrollments : "generates"
+    Users ||--o{ Enrollments : "enrolls_in"
+    Courses ||--o{ Enrollments : "has_enrollee"
+    Users ||--o{ Progress : "tracks"
+    Courses ||--o{ Progress : "tracked_for"
+    Lessons ||--o{ Progress : "last_accessed"
+
+    %% ============ ASSESSMENT & GRADING ============
+    Courses ||--o{ Assignments : "has"
+    Assignments ||--|| Deadlines : "has"
+    Assignments ||--o{ Submissions : "receives"
+    Users ||--o{ Submissions : "submits"
+    Courses ||--o{ Submissions : "for"
+    Courses ||--o{ Exams : "has"
+    Exams ||--o{ Results : "produces"
+    Users ||--o{ Results : "receives"
+    Courses ||--o{ Results : "for"
+
+    %% ============ CERTIFICATION & FEEDBACK ============
+    Users ||--o{ Certificates : "earns"
+    Courses ||--o{ Certificates : "awards"
+    Users ||--o{ Reviews : "writes"
+    Courses ||--o{ Reviews : "receives"
+    Users ||--o{ Notifications : "receives"
+
+    %% ================= ENTITY DEFINITIONS =================
+
+    Roles {
+        int role_id PK
+        string role_name UK
+    }
+
+    Permissions {
+        int permission_id PK
+        string permission_name UK
+    }
+
+    Role_Permissions {
+        int role_permission_id PK
+        int role_id FK
+        int permission_id FK
+    }
+
+    Users {
+        int user_id PK
+        string name
+        string email UK
+        string password_hash
+        int role_id FK
+        string phone
+        datetime created_at
+        datetime updated_at
+        enum status
+    }
+
+    Instructor_Profile {
+        int instructor_id PK "FK to Users.user_id"
+        string bio
+        string expertise
+        int experience_years
+        float rating
+    }
+
+    Courses {
+        int course_id PK
+        string title
+        string description
+        int instructor_id FK
+        decimal price
+        int duration
+        enum level
+        datetime created_at
+        datetime updated_at
+        enum status
+    }
+
+    Categories {
+        int category_id PK
+        string category_name UK
+        string description
+    }
+
+    Course_Category {
+        int id PK
+        int course_id FK
+        int category_id FK
+    }
+
+    Lessons {
+        int lesson_id PK
+        int course_id FK
+        string title
+        enum content_type
+        string content_url
+        int duration
+        int order_index
+    }
+
+    Cart {
+        int cart_id PK
+        int user_id FK "UK - one cart per user"
+        datetime created_at
+        datetime updated_at
+    }
+
+    Cart_Items {
+        int cart_item_id PK
+        int cart_id FK
+        int course_id FK
+        datetime added_at
+    }
+
+    Wishlist {
+        int wishlist_id PK
+        int user_id FK
+        int course_id FK
+        datetime added_at
+    }
+
+    Coupons {
+        int coupon_id PK
+        string code UK
+        enum discount_type
+        decimal discount_value
+        decimal max_discount_amount
+        decimal min_order_amount
+        datetime valid_from
+        datetime valid_to
+        int usage_limit
+        int times_used
+        boolean is_active
+    }
+
+    Orders {
+        int order_id PK
+        int user_id FK
+        int coupon_id FK
+        decimal subtotal_amount
+        decimal discount_amount
+        decimal total_amount
+        enum status
+        datetime created_at
+        datetime updated_at
+    }
+
+    Order_Items {
+        int order_item_id PK
+        int order_id FK
+        int course_id FK
+        decimal price_at_purchase
+    }
+
+    Payments {
+        int payment_id PK
+        int order_id FK
+        decimal amount
+        datetime payment_date
+        enum payment_method
+        enum status
+        string transaction_ref UK
+    }
+
+    Enrollments {
+        int enrollment_id PK
+        int user_id FK
+        int course_id FK
+        int order_item_id FK "nullable - null for free/manual enrollment"
+        datetime enrollment_date
+        enum completion_status
+        float progress_percentage
+    }
+
+    Progress {
+        int progress_id PK
+        int user_id FK
+        int course_id FK
+        int completed_lessons
+        int total_lessons
+        int last_accessed_lesson FK
+        float completion_percentage
+    }
+
+    Assignments {
+        int assignment_id PK
+        int course_id FK
+        string title
+        string description
+        decimal max_marks
+        datetime created_at
+    }
+
+    Deadlines {
+        int deadline_id PK
+        int assignment_id FK "UK - one deadline per assignment"
+        datetime due_date
+        boolean late_submission_allowed
+    }
+
+    Submissions {
+        int submission_id PK
+        int assignment_id FK
+        int user_id FK
+        int course_id FK
+        string file_url
+        datetime submission_date
+        decimal marks_obtained
+        string feedback
+    }
+
+    Exams {
+        int exam_id PK
+        int course_id FK
+        string title
+        decimal total_marks
+        int duration
+        datetime exam_date
+    }
+
+    Results {
+        int result_id PK
+        int exam_id FK
+        int user_id FK
+        int course_id FK
+        decimal marks_obtained
+        string grade
+        datetime result_date
+    }
+
+    Certificates {
+        int certificate_id PK
+        int user_id FK
+        int course_id FK
+        datetime issue_date
+        string certificate_url UK
+    }
+
+    Reviews {
+        int review_id PK
+        int user_id FK
+        int course_id FK
+        int rating "CHECK 1-5"
+        string comment
+        datetime created_at
+    }
+
+    Notifications {
+        int notification_id PK
+        int user_id FK
+        string message
+        enum type
+        enum channel
+        enum priority
+        enum status
+        int retries_count
+        int max_retries
+        string error_reason
+        datetime scheduled_at
+        datetime sent_at
+        datetime read_at
+        datetime created_at
+    }
+
+    Activity_Log {
+        int log_id PK
+        int user_id FK
+        string action
+        datetime event_time
+        string ip_address
+        string metadata_json
+    }

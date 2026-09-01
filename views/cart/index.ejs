@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head') %>
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <main class="container" style="padding-top: var(--space-4);">
+    <div style="margin-top: var(--space-2);">
+      <%- include('../partials/flash') %>
+    </div>
+
+    <h1 style="font-size: 2.25rem; margin-bottom: var(--space-4);">Shopping Cart</h1>
+
+    <% if (cart && cart.items && cart.items.length > 0) { %>
+      <div style="display: grid; grid-template-columns: 1fr 360px; gap: var(--space-6); margin-bottom: var(--space-8);">
+        
+        <!-- Left: Cart Items List -->
+        <div>
+          <div style="background: var(--white); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-subtle);">
+            <% cart.items.forEach((item, index) => { %>
+              <div style="padding: var(--space-4); border-bottom: <%= index < cart.items.length - 1 ? '1px solid var(--border-subtle)' : 'none' %>; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--verdant); font-weight: 600;"><%= item.level %> Level</span>
+                  <h3 style="font-size: 1.2rem; margin: 2px 0;"><a href="/courses/<%= item.course_id %>" style="color: var(--ink-navy);"><%= item.title %></a></h3>
+                  <div style="font-size: 0.85rem; color: var(--text-muted);">Instructor: <%= item.instructor_name %></div>
+                </div>
+
+                <div style="text-align: right; display: flex; align-items: center; gap: var(--space-4);">
+                  <div style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; color: var(--ink-navy);">
+                    <%= item.price > 0 ? `$${parseFloat(item.price).toFixed(2)}` : 'Free' %>
+                  </div>
+                  <form action="/cart/remove" method="POST" style="margin: 0;">
+                    <input type="hidden" name="course_id" value="<%= item.course_id %>">
+                    <button type="submit" class="btn btn-secondary btn-sm" style="color: var(--danger); border-color: #F5B7B1;">Remove</button>
+                  </form>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+        </div>
+
+        <!-- Right Sidebar: Coupon & Order Summary -->
+        <div>
+          <!-- Coupon Box -->
+          <div style="background: var(--white); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-4); margin-bottom: var(--space-4); box-shadow: var(--shadow-subtle);">
+            <h4 style="font-size: 1rem; color: var(--ink-navy); margin-bottom: var(--space-2);">Promotional Coupon</h4>
+            
+            <% if (appliedCoupon) { %>
+              <div style="background: #E8F4F1; border: 1px solid #B2D9D0; padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <strong style="color: var(--verdant); font-size: 0.9rem;"><%= appliedCoupon.code %></strong>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">Saved $<%= parseFloat(discountAmount).toFixed(2) %></div>
+                </div>
+                <form action="/cart/coupon/remove" method="POST" style="margin: 0;">
+                  <button type="submit" class="btn btn-secondary btn-sm" style="font-size: 0.75rem;">Remove</button>
+                </form>
+              </div>
+            <% } else { %>
+              <form action="/cart/coupon" method="POST" style="display: flex; gap: var(--space-2);">
+                <input type="text" name="code" class="form-control" placeholder="Enter code (e.g. WELCOME10)" required style="text-transform: uppercase;">
+                <button type="submit" class="btn btn-secondary btn-sm">Apply</button>
+              </form>
+            <% } %>
+          </div>
+
+          <!-- Order Summary Card -->
+          <div style="background: var(--white); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-4); box-shadow: var(--shadow-elevated);">
+            <h3 style="font-size: 1.25rem; margin-bottom: var(--space-3);">Summary</h3>
+
+            <div style="display: flex; justify-content: space-between; margin-bottom: var(--space-2); font-size: 0.95rem;">
+              <span style="color: var(--text-muted);">Subtotal (<%= cart.items.length %> items)</span>
+              <span>$<%= cart.subtotal.toFixed(2) %></span>
+            </div>
+
+            <% if (discountAmount > 0) { %>
+              <div style="display: flex; justify-content: space-between; margin-bottom: var(--space-2); font-size: 0.95rem; color: var(--verdant);">
+                <span>Coupon Discount</span>
+                <span>-$<%= discountAmount.toFixed(2) %></span>
+              </div>
+            <% } %>
+
+            <div style="border-top: 1px solid var(--border-subtle); padding-top: var(--space-3); margin-top: var(--space-2); display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4);">
+              <span style="font-weight: 700; font-size: 1.1rem; color: var(--ink-navy);">Total</span>
+              <span style="font-family: var(--font-display); font-size: 1.75rem; font-weight: 700; color: var(--ink-navy);">$<%= totalAmount.toFixed(2) %></span>
+            </div>
+
+            <form action="/checkout/initiate" method="POST">
+              <button type="submit" class="btn btn-primary" style="width: 100%;">
+                Proceed to Checkout &rarr;
+              </button>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    <% } else { %>
+      <div style="background: var(--white); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-8); text-align: center;">
+        <h3 style="font-size: 1.5rem; color: var(--ink-navy); margin-bottom: var(--space-2);">Your Shopping Cart is Empty</h3>
+        <p style="color: var(--text-muted); max-width: 480px; margin: 0 auto var(--space-4);">
+          Explore our courses catalog and add the courses you want to master!
+        </p>
+        <a href="/courses" class="btn btn-primary">Browse Catalog</a>
+      </div>
+    <% } %>
+  </main>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

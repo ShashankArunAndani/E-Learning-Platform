@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head') %>
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <main class="container" style="padding-top: var(--space-4);">
+    <div class="auth-wrapper" style="max-width: 680px; margin: 0 auto var(--space-6);">
+      <div class="auth-header">
+        <h2><%= mode === 'create' ? 'Create New Course' : 'Edit Course Settings' %></h2>
+        <p>Define curriculum details, pricing, difficulty level, and category mappings.</p>
+      </div>
+
+      <%- include('../partials/flash') %>
+
+      <form action="<%= mode === 'create' ? '/courses/new' : `/courses/${course.course_id}/edit` %>" method="POST">
+        <div class="form-group">
+          <label for="title" class="form-label">Course Title *</label>
+          <input 
+            type="text" 
+            id="title" 
+            name="title" 
+            class="form-control" 
+            placeholder="e.g. Full-Stack Web Architecture with Express & Node" 
+            value="<%= course.title || '' %>" 
+            required 
+            autofocus
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="description" class="form-label">Course Description</label>
+          <textarea 
+            id="description" 
+            name="description" 
+            class="form-control" 
+            rows="5" 
+            placeholder="Provide a comprehensive summary of learning objectives, prerequisites, and topic coverage..."
+          ><%= course.description || '' %></textarea>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3);">
+          <div class="form-group">
+            <label for="price" class="form-label">Price ($ USD) *</label>
+            <input 
+              type="number" 
+              step="0.01" 
+              min="0" 
+              id="price" 
+              name="price" 
+              class="form-control" 
+              placeholder="49.99" 
+              value="<%= course.price !== undefined ? course.price : '0.00' %>" 
+              required 
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="duration" class="form-label">Estimated Total Minutes</label>
+            <input 
+              type="number" 
+              min="0" 
+              id="duration" 
+              name="duration" 
+              class="form-control" 
+              placeholder="120" 
+              value="<%= course.duration || '' %>" 
+            >
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3);">
+          <div class="form-group">
+            <label for="level" class="form-label">Difficulty Level *</label>
+            <select id="level" name="level" class="form-control" required>
+              <option value="beginner" <%= course.level === 'beginner' ? 'selected' : '' %>>Beginner</option>
+              <option value="intermediate" <%= course.level === 'intermediate' ? 'selected' : '' %>>Intermediate</option>
+              <option value="advanced" <%= course.level === 'advanced' ? 'selected' : '' %>>Advanced</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="status" class="form-label">Lifecycle Status *</label>
+            <select id="status" name="status" class="form-control" required>
+              <option value="draft" <%= course.status === 'draft' ? 'selected' : '' %>>Draft (Hidden)</option>
+              <option value="published" <%= course.status === 'published' ? 'selected' : '' %>>Published (Visible)</option>
+              <option value="archived" <%= course.status === 'archived' ? 'selected' : '' %>>Archived</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Categories Selection -->
+        <div class="form-group" style="border-top: 1px solid var(--border-subtle); padding-top: var(--space-3); margin-top: var(--space-3);">
+          <label class="form-label">Assign Categories</label>
+          <% if (categories && categories.length > 0) { %>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: var(--space-2); margin-top: var(--space-1);">
+              <% categories.forEach(cat => { %>
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 0.9rem; cursor: pointer;">
+                  <input 
+                    type="checkbox" 
+                    name="category_ids" 
+                    value="<%= cat.category_id %>"
+                    <%= selectedCategoryIds.includes(cat.category_id) ? 'checked' : '' %>
+                  >
+                  <%= cat.category_name %>
+                </label>
+              <% }); %>
+            </div>
+          <% } else { %>
+            <p style="color: var(--text-muted); font-size: 0.85rem;">No categories exist yet. Instructors can select categories once created by an Admin.</p>
+          <% } %>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: var(--space-4);">
+          <a href="/courses/manage" class="btn btn-secondary">Cancel</a>
+          <button type="submit" class="btn btn-primary">
+            <%= mode === 'create' ? 'Create Course' : 'Save Changes' %>
+          </button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

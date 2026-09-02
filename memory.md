@@ -1,16 +1,16 @@
 # Project Memory — E-Learning Platform
 
-Last updated: 2026-09-01 by Antigravity (Phase 3 completed)
+Last updated: 2026-09-03 by Cursor (Phase 4 completed)
 
 ## Current Phase
-Phase 3 — Cart, Wishlist, Coupons & Checkout complete. Ready for Phase 4 (Learning Experience).
+Phase 4 — Learning Experience complete. Ready for Phase 5 (Assessments).
 
 ## Completed Checkpoints
 - [x] Phase 0 — Project Setup & Architecture
 - [x] Phase 1 — Auth & Access Control
 - [x] Phase 2 — Course Catalog
 - [x] Phase 3 — Cart, Wishlist, Coupons & Checkout
-- [ ] Phase 4 — Learning Experience
+- [x] Phase 4 — Learning Experience
 - [ ] Phase 5 — Assessments
 - [ ] Phase 6 — Certificates & Reviews
 - [ ] Phase 7 — Notifications & Activity Log
@@ -20,18 +20,21 @@ Phase 3 — Cart, Wishlist, Coupons & Checkout complete. Ready for Phase 4 (Lear
 
 ## Current State
 - What's built and working right now:
-  - Phase 0 & 1: MVC infrastructure, MySQL pool, session, helmet security, morgan logger, rate-limiter, bcrypt authentication, RBAC middleware (`isAuthenticated`, `authorize`), error middleware.
-  - Phase 2 Course Catalog: Raw SQL Models (`Category.js`, `Course.js`, `Lesson.js`), Admin Category CRUD (`/categories`), Instructor Course Management (`/courses/manage`, `/courses/new`, `/courses/:id/edit`), Ordered Lesson Management (`/courses/:course_id/lessons`), Filterable Public Course Catalog (`/courses`), Detailed Course View (`/courses/:id`).
-  - Phase 3 Cart, Wishlist, Coupons & Checkout:
-    - Raw SQL Models: `Wishlist.js`, `Cart.js`, `Coupon.js`, `Order.js`, `Payment.js`, `Enrollment.js` with zero ORM.
-    - Wishlist System (`/wishlist`, `/wishlist/add`, `/wishlist/remove`): student wishlist page with course cards and cart transfer.
-    - Lazy Cart Management (`/cart`, `/cart/add`, `/cart/remove`): lazy cart creation for logged-in students, duplicate item check, subtotal calculation.
-    - Coupon Validation System (`/cart/coupon`, `/coupons` admin CRUD): code validation checking active state, date windows, usage limits, minimum order amount, calculating flat/percent discounts capped by max_discount.
-    - Transactional Checkout (`/checkout/initiate`): MySQL transaction (`db.withTransaction`) creating `Orders` + `Order_Items` locking `price_at_purchase`, clearing `Cart_Items`, and incrementing coupon usage.
-    - Test Payment Gateway Sandbox (`/checkout/:order_id`, `/checkout/:order_id/pay`): sandbox simulation for success or failure. On success, executes database transaction creating `Payments` record (`status = 'success'`), setting `Orders.status = 'completed'`, and auto-generating `Enrollments` & `Progress` records for purchased courses. Failed payments record `Payments` failure, set `Orders.status = 'failed'`, and NEVER create `Enrollments`.
-    - Receipt & Order History (`/orders/:order_id/success`, `/orders`): order receipt page with transaction reference and student order history.
-    - Coupon Seeding Script: `scripts/seedCoupons.js` seeding test coupons (`WELCOME10`, `SAVE20`, `STUDENT15`).
-- What's in progress / half-built: None — Phase 3 features complete and verified.
+  - Phase 0–3: (unchanged — see prior entries in Decisions section)
+  - Phase 4 Learning Experience:
+    - `models/Progress.js`: getProgress (auto-init), updateLastAccessed, recordLessonCompletion (transaction syncs Enrollments.completion_status + progress_percentage per DFD-2.7).
+    - `models/Enrollment.js`: extended with getUserEnrollments, getEnrollment (JOIN Progress).
+    - `controllers/learnController.js`: My Courses dashboard, smart resume (`/learn/:course_id`), gated lesson player, lesson completion (JSON + redirect).
+    - `routes/learnRoutes.js`: `/my-courses`, `/learn/:course_id`, `/learn/:course_id/lessons/:lesson_id`, POST complete.
+    - `views/learn/myCourses.ejs`: enrolled courses with verdant progress bars and stats.
+    - `views/learn/player.ejs`: sidebar curriculum, content player, Mark Complete with real-time progress update.
+    - `public/js/learn-player.js`: fetch-based completion (DFD-2.7 7.12–7.14).
+    - `public/css/styles.css`: learning component styles (progress bars, player layout).
+    - Navbar: "My Courses" link for students.
+    - Course detail: enrolled state shows progress + Continue Learning; curriculum unlocked for enrolled users.
+    - Order success page links to `/my-courses`.
+    - Routes mounted in `server.js`.
+- What's in progress / half-built: None — Phase 4 checkpoint verified.
 
 ## Decisions & Resolved Ambiguities
 (append-only — do not delete past entries)
@@ -51,16 +54,18 @@ Phase 3 — Cart, Wishlist, Coupons & Checkout complete. Ready for Phase 4 (Lear
 - 2026-09-01: **Server-Side Lesson Protection** — Lesson content URLs are kept locked on the server side for non-enrolled users viewing the public course detail page (`/courses/:id`).
 - 2026-09-01: **Checkout DB Transaction** — Order initiation (`Order.createOrderFromCart`) executes inside a MySQL transaction creating `Orders`, locking `price_at_purchase` in `Order_Items`, clearing cart items, and incrementing coupon usage.
 - 2026-09-01: **Payment Auto-Enrollment Hard Rule** — `Payment.processPaymentAndEnroll` executes inside a MySQL transaction. On payment success, updates `Orders.status = 'completed'` and auto-creates `Enrollments` and `Progress` rows. Failed payments set `Orders.status = 'failed'` and NEVER create `Enrollments`.
+- 2026-09-03: **Progress completion logic** — `recordLessonCompletion` advances `completed_lessons` to `max(current, lesson.order_index)` inside a transaction, recalculates `completion_percentage`, syncs `Enrollments.completion_status` (`not_started`/`in_progress`/`completed`) per DFD-2.7 Process 7.13–7.14.
+- 2026-09-03: **Lesson player access** — Enrolled students + course owner/admin can access `/learn/:course_id/lessons/:lesson_id`. Non-enrolled users redirected with paywall denial (DFD-2.7 Process 7.10).
 
 ## Known Issues / Blockers
 - None.
 
 ## Next Steps
-1. Phase 4 — Learning Experience:
-   - "My Courses" student dashboard listing enrolled courses with progress bars.
-   - Gated Lesson Player page (`/learn/:course_id/lessons/:lesson_id`): enforce enrolled-students-only access server-side.
-   - Progress Tracking: mark lesson as completed, update `Progress.completed_lessons`, recalculate `completion_percentage` and `last_accessed_lesson`.
-   - Completion Sync: automatically sync `Enrollments.completion_status` (`not_started` → `in_progress` → `completed`).
+1. Phase 5 — Assessments:
+   - Instructor: create assignments per course with max_marks and linked Deadlines.
+   - Student: submit assignment (multer upload), block after due_date unless late_submission_allowed.
+   - Instructor: grade submissions (marks_obtained, feedback).
+   - Exams: instructor metadata + manual Results entry (no auto-graded exam engine).
 
 ## File/Route Inventory
 | File | Purpose | Status |
@@ -84,7 +89,8 @@ Phase 3 — Cart, Wishlist, Coupons & Checkout complete. Ready for Phase 4 (Lear
 | `models/Coupon.js` | Coupons table & discount calculation model | Built |
 | `models/Order.js` | Orders & Order_Items transactional model | Built |
 | `models/Payment.js` | Payments & Auto-Enrollment transaction model | Built |
-| `models/Enrollment.js` | Enrollments & Progress query model | Built |
+| `models/Enrollment.js` | Enrollments query model with progress JOINs | Built & Updated |
+| `models/Progress.js` | Progress tracking & enrollment sync model | Built |
 | `middleware/authMiddleware.js` | `isAuthenticated` & `authorize` RBAC middleware | Built |
 | `middleware/validationMiddleware.js` | express-validator for auth, course, category, lesson, and coupon forms | Built & Updated |
 | `middleware/errorHandler.js` | Centralized error handler | Built |
@@ -93,12 +99,13 @@ Phase 3 — Cart, Wishlist, Coupons & Checkout complete. Ready for Phase 4 (Lear
 | `controllers/authController.js` | Register, Login, Logout, Audit log controller | Built |
 | `controllers/dashboardController.js` | Main, Instructor & Admin dashboard controller | Built |
 | `controllers/categoryController.js` | Admin Category CRUD controller | Built |
-| `controllers/courseController.js` | Public Catalog & Instructor Course CRUD controller | Built |
+| `controllers/courseController.js` | Public Catalog & Instructor Course CRUD controller | Built & Updated |
 | `controllers/lessonController.js` | Ordered Lesson Management controller | Built |
 | `controllers/wishlistController.js` | Student Wishlist controller | Built |
 | `controllers/cartController.js` | Shopping Cart & Coupon application controller | Built |
 | `controllers/couponController.js` | Admin Coupon Management controller | Built |
 | `controllers/checkoutController.js` | Transactional Checkout & Test Payment Gateway controller | Built |
+| `controllers/learnController.js` | My Courses, lesson player, completion sync controller | Built |
 | `routes/indexRoutes.js` | `/` route | Built |
 | `routes/authRoutes.js` | `/register`, `/login`, `/logout` routes | Built |
 | `routes/dashboardRoutes.js` | `/dashboard`, `/dashboard/instructor`, `/dashboard/admin` | Built |
@@ -109,10 +116,12 @@ Phase 3 — Cart, Wishlist, Coupons & Checkout complete. Ready for Phase 4 (Lear
 | `routes/cartRoutes.js` | `/cart` (GET, POST add/remove/coupon) routes | Built |
 | `routes/couponRoutes.js` | `/coupons` (GET, POST, toggle) routes | Built |
 | `routes/checkoutRoutes.js` | `/checkout/initiate`, `/checkout/:id`, `/checkout/:id/pay`, `/orders`, `/orders/:id/success` routes | Built |
+| `routes/learnRoutes.js` | `/my-courses`, `/learn/:course_id`, lesson player, complete routes | Built |
 | `public/css/tokens.css` | Design system CSS tokens | Built |
-| `public/css/styles.css` | Academic typography & component styling | Built |
+| `public/css/styles.css` | Academic typography & component styling | Built & Updated |
+| `public/js/learn-player.js` | Real-time lesson completion & progress bar update | Built |
 | `views/partials/head.ejs` | HTML head with Google Fonts & CSS links | Built |
-| `views/partials/navbar.ejs` | Responsive navigation partial with cart & wishlist links | Built & Updated |
+| `views/partials/navbar.ejs` | Responsive navigation partial with My Courses link | Built & Updated |
 | `views/partials/footer.ejs` | Footer partial | Built |
 | `views/partials/flash.ejs` | Alert notification partial | Built |
 | `views/index.ejs` | Home landing page with hero certificate mockup | Built |
@@ -121,7 +130,7 @@ Phase 3 — Cart, Wishlist, Coupons & Checkout complete. Ready for Phase 4 (Lear
 | `views/dashboard.ejs` | Role-based dashboard view | Built |
 | `views/categories/index.ejs` | Category management view for admins | Built |
 | `views/courses/index.ejs` | Filterable public course catalog view | Built |
-| `views/courses/show.ejs` | Course detail view with Cart/Wishlist actions | Built & Updated |
+| `views/courses/show.ejs` | Course detail with enrollment progress & unlocked curriculum | Built & Updated |
 | `views/courses/manage.ejs` | Instructor course management workspace | Built |
 | `views/courses/form.ejs` | Create and edit course form view | Built |
 | `views/courses/lessons.ejs` | Lesson manager view for courses | Built |
@@ -129,6 +138,8 @@ Phase 3 — Cart, Wishlist, Coupons & Checkout complete. Ready for Phase 4 (Lear
 | `views/cart/index.ejs` | Student Cart view with coupon form & summary | Built |
 | `views/coupons/index.ejs` | Admin Coupon Management view | Built |
 | `views/checkout/index.ejs` | Sandbox Test Payment Gateway page | Built |
-| `views/orders/success.ejs` | Order success confirmation receipt view | Built |
+| `views/orders/success.ejs` | Order success confirmation receipt view | Built & Updated |
 | `views/orders/index.ejs` | Student Order History view | Built |
+| `views/learn/myCourses.ejs` | Student enrolled courses dashboard with progress | Built |
+| `views/learn/player.ejs` | Gated lesson player with curriculum sidebar | Built |
 | `views/error.ejs` | Error page template | Built |

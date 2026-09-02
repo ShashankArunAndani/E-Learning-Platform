@@ -21,6 +21,7 @@ const wishlistRoutes = require('./routes/wishlistRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const couponRoutes = require('./routes/couponRoutes');
 const checkoutRoutes = require('./routes/checkoutRoutes');
+const learnRoutes = require('./routes/learnRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -90,6 +91,7 @@ app.use('/', wishlistRoutes);
 app.use('/', cartRoutes);
 app.use('/', couponRoutes);
 app.use('/', checkoutRoutes);
+app.use('/', learnRoutes);
 
 // 404 Route Handler
 app.use((req, res, next) => {

@@ -61,9 +61,15 @@
                   </div>
 
                   <div style="display: flex; align-items: center; gap: var(--space-2);">
-                    <span style="font-size: 0.8rem; color: var(--text-muted); background: var(--parchment); padding: 2px 8px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
-                      Locked 🔒
-                    </span>
+                    <% if (isEnrolled || isOwner) { %>
+                      <a href="/learn/<%= course.course_id %>/lessons/<%= lesson.lesson_id %>" style="font-size: 0.8rem; color: var(--verdant); font-weight: 600; text-decoration: none;">
+                        Open &rarr;
+                      </a>
+                    <% } else { %>
+                      <span style="font-size: 0.8rem; color: var(--text-muted); background: var(--parchment); padding: 2px 8px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+                        Locked 🔒
+                      </span>
+                    <% } %>
                   </div>
                 </div>
               <% }); %>
@@ -99,6 +105,21 @@
             <% if (isOwner) { %>
               <a href="/courses/<%= course.course_id %>/edit" class="btn btn-secondary" style="width: 100%; margin-bottom: var(--space-2);">Edit Course Settings</a>
               <a href="/courses/<%= course.course_id %>/lessons" class="btn btn-primary" style="width: 100%;">Manage Curriculum</a>
+            <% } else if (isEnrolled) { %>
+              <% const pct = enrollment ? (enrollment.progress_percentage || enrollment.prog_percentage || 0) : 0; %>
+              <div style="margin-bottom: var(--space-3);">
+                <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 6px;">
+                  <span style="color: var(--text-muted);">Your Progress</span>
+                  <span style="font-weight: 600; color: var(--verdant);"><%= parseFloat(pct).toFixed(0) %>%</span>
+                </div>
+                <div class="progress-bar-track">
+                  <div class="progress-bar-fill" style="width: <%= Math.min(100, parseFloat(pct)) %>%;"></div>
+                </div>
+              </div>
+              <a href="/learn/<%= course.course_id %>" class="btn btn-primary" style="width: 100%; margin-bottom: var(--space-2);">
+                <%= pct > 0 ? 'Continue Learning' : 'Start Course' %> &rarr;
+              </a>
+              <a href="/my-courses" class="btn btn-secondary" style="width: 100%;">View All My Courses</a>
             <% } else { %>
               <form action="/cart/add" method="POST" style="margin-bottom: var(--space-2);">
                 <input type="hidden" name="course_id" value="<%= course.course_id %>">

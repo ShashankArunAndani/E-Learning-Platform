@@ -9,6 +9,7 @@
       <% if (user) { %>
         <li><a href="/dashboard">Dashboard</a></li>
         <% if (user.role_name === 'Student') { %>
+          <li><a href="/my-courses">My Courses</a></li>
           <li><a href="/wishlist">Wishlist</a></li>
           <li><a href="/cart">Cart 🛒</a></li>
           <li><a href="/orders">My Orders</a></li>

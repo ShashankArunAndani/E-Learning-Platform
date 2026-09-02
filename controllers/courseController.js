@@ -1,6 +1,7 @@
 const Course = require('../models/Course');
 const Category = require('../models/Category');
 const ActivityLog = require('../models/ActivityLog');
+const Enrollment = require('../models/Enrollment');
 
 /**
  * Public Course Catalog view with search and filters
@@ -53,10 +54,21 @@ const renderCourseDetail = async (req, res) => {
     });
   }
 
+  let isEnrolled = false;
+  let enrollment = null;
+  if (currentUser) {
+    isEnrolled = await Enrollment.isEnrolled(currentUser.user_id, courseId);
+    if (isEnrolled) {
+      enrollment = await Enrollment.getEnrollment(currentUser.user_id, courseId);
+    }
+  }
+
   res.render('courses/show', {
     title: `${course.title} — E-Learning Platform`,
     course,
     isOwner,
+    isEnrolled,
+    enrollment,
     user: currentUser,
     success_msg: req.flash('success_msg'),
     error_msg: req.flash('error_msg')

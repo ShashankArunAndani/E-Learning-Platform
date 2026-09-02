@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head') %>
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <main class="container" style="padding-top: var(--space-3); padding-bottom: var(--space-6);">
+    <div style="margin-top: var(--space-1);">
+      <%- include('../partials/flash') %>
+    </div>
+
+    <% 
+      const completedCount = progress ? (progress.completed_lessons || 0) : 0;
+      const totalCount = progress ? (progress.total_lessons || lessons.length) : lessons.length;
+      const pct = progress ? parseFloat(progress.completion_percentage || 0) : 0;
+      const isLessonComplete = currentLesson.order_index <= completedCount;
+      const isCourseComplete = enrollment && enrollment.completion_status === 'completed';
+    %>
+
+    <div style="margin-bottom: var(--space-3);">
+      <a href="/my-courses" style="font-size: 0.85rem; color: var(--text-muted); text-decoration: none;">&larr; Back to My Courses</a>
+      <h1 style="font-size: 1.75rem; margin-top: var(--space-1);"><%= course.title %></h1>
+      <p style="color: var(--text-muted); font-size: 0.9rem;">
+        Lesson <%= currentIndex %> of <%= lessons.length %> &middot; <%= currentLesson.content_type %>
+        <% if (currentLesson.duration) { %>&middot; <%= currentLesson.duration %> min<% } %>
+      </p>
+    </div>
+
+    <div class="learn-layout">
+      <!-- Sidebar: curriculum + progress -->
+      <aside class="learn-sidebar">
+        <div class="learn-sidebar-header">
+          <h2>Course Curriculum</h2>
+          <% if (isEnrolled && progress) { %>
+            <div class="progress-label">
+              <span>Progress</span>
+              <strong id="sidebar-progress-pct"><%= pct.toFixed(0) %>%</strong>
+            </div>
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill" id="sidebar-progress-bar" style="width: <%= Math.min(100, pct) %>%;"></div>
+            </div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px;">
+              <span id="sidebar-lesson-count"><%= completedCount %></span> of <%= totalCount %> lessons completed
+            </div>
+          <% } %>
+        </div>
+
+        <ul class="lesson-nav-list">
+          <% lessons.forEach((lesson, idx) => {
+            const isActive = lesson.lesson_id === currentLesson.lesson_id;
+            const isComplete = lesson.order_index <= completedCount;
+          %>
+            <li class="lesson-nav-item <%= isActive ? 'active' : '' %> <%= isComplete ? 'completed' : '' %>">
+              <a href="/learn/<%= course.course_id %>/lessons/<%= lesson.lesson_id %>">
+                <span class="lesson-nav-index"><%= isComplete ? '✓' : lesson.order_index %></span>
+                <span><%= lesson.title %></span>
+              </a>
+            </li>
+          <% }); %>
+        </ul>
+      </aside>
+
+      <!-- Main lesson content -->
+      <section class="learn-main">
+        <div class="learn-main-header">
+          <h2 style="font-size: 1.35rem;"><%= currentLesson.title %></h2>
+        </div>
+
+        <div class="learn-content-area">
+          <% if (currentLesson.content_type === 'video') { %>
+            <video class="learn-content-video" controls preload="metadata">
+              <source src="<%= currentLesson.content_url %>" type="video/mp4">
+              Your browser does not support embedded video playback.
+            </video>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: var(--space-2);">
+              If the video does not load, the content may be hosted externally. Contact your instructor for access.
+            </p>
+          <% } else if (currentLesson.content_type === 'document') { %>
+            <div class="learn-content-placeholder">
+              <p style="margin-bottom: var(--space-2); font-weight: 500; color: var(--ink-navy);">Document Lesson</p>
+              <a href="<%= currentLesson.content_url %>" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+                Open Document &rarr;
+              </a>
+            </div>
+          <% } else { %>
+            <div class="learn-content-placeholder">
+              <p style="margin-bottom: var(--space-2); font-weight: 500; color: var(--ink-navy);">
+                <%= currentLesson.content_type === 'quiz' ? 'Quiz Lesson' : 'Lesson Content' %>
+              </p>
+              <% if (currentLesson.content_url) { %>
+                <a href="<%= currentLesson.content_url %>" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+                  View Content &rarr;
+                </a>
+              <% } else { %>
+                <p>Content for this lesson will be available soon.</p>
+              <% } %>
+            </div>
+          <% } %>
+        </div>
+
+        <div class="learn-footer-actions">
+          <div>
+            <% if (prevLesson) { %>
+              <a href="/learn/<%= course.course_id %>/lessons/<%= prevLesson.lesson_id %>" class="btn btn-secondary btn-sm">&larr; Previous</a>
+            <% } %>
+          </div>
+
+          <div style="display: flex; gap: var(--space-2); align-items: center;">
+            <% if (isEnrolled) { %>
+              <% if (isLessonComplete) { %>
+                <span style="font-size: 0.85rem; color: var(--verdant); font-weight: 600;">✓ Lesson Completed</span>
+              <% } else { %>
+                <button type="button" id="complete-lesson-btn" class="btn btn-primary btn-sm"
+                  data-url="/learn/<%= course.course_id %>/lessons/<%= currentLesson.lesson_id %>/complete">
+                  Mark as Complete
+                </button>
+              <% } %>
+
+              <% if (nextLesson) { %>
+                <a href="/learn/<%= course.course_id %>/lessons/<%= nextLesson.lesson_id %>" class="btn btn-secondary btn-sm" id="next-lesson-link">
+                  Next &rarr;
+                </a>
+              <% } %>
+            <% } else if (isInstructorOrAdmin) { %>
+              <span style="font-size: 0.85rem; color: var(--text-muted);">Preview mode (instructor/admin)</span>
+            <% } %>
+          </div>
+        </div>
+
+        <% if (isEnrolled) { %>
+          <div class="learn-progress-panel">
+            <div class="progress-label">
+              <span>Course Progress</span>
+              <strong id="main-progress-pct"><%= pct.toFixed(0) %>%</strong>
+            </div>
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill" id="main-progress-bar" style="width: <%= Math.min(100, pct) %>%;"></div>
+            </div>
+            <div class="completion-banner <%= isCourseComplete ? 'visible' : '' %>" id="course-complete-banner">
+              Congratulations! You have completed all lessons in this course.
+            </div>
+          </div>
+        <% } %>
+      </section>
+    </div>
+  </main>
+
+  <%- include('../partials/footer') %>
+
+  <% if (isEnrolled && !isLessonComplete) { %>
+    <script src="/js/learn-player.js"></script>
+  <% } %>
+</body>
+</html>

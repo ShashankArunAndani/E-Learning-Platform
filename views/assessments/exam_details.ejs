@@ -1,0 +1,87 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+
+<main class="container my-5">
+  <%- include('../partials/flash') %>
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="mb-1"><%= exam.title %></h1>
+      <p class="text-muted mb-0"><%= course.title %></p>
+    </div>
+    <a href="/courses/<%= course.course_id %>/exams" class="btn btn-outline-secondary">Back to Exams</a>
+  </div>
+
+  <div class="card mb-5 bg-light">
+    <div class="card-body">
+      <h5>Exam Details</h5>
+      <ul class="list-inline mb-0">
+        <li class="list-inline-item mr-3"><strong>Total Marks:</strong> <%= exam.total_marks %></li>
+        <li class="list-inline-item mr-3"><strong>Date:</strong> <%= new Date(exam.exam_date).toLocaleString() %></li>
+        <li class="list-inline-item"><strong>Duration:</strong> <%= exam.duration %> mins</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2 class="mb-4">Student Results</h2>
+  
+  <div class="card mb-4 border-primary">
+    <div class="card-header bg-primary text-white">Enter Result</div>
+    <div class="card-body">
+      <form action="/courses/<%= course.course_id %>/exams/<%= exam.exam_id %>/results" method="POST">
+        <div class="row align-items-end">
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Select Student</label>
+            <select class="form-select" name="user_id" required>
+              <option value="" disabled selected>-- Select a student --</option>
+              <% enrolledStudents.forEach(student => { %>
+                <option value="<%= student.user_id %>"><%= student.name %> (<%= student.email %>)</option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="col-md-3 mb-3">
+            <label class="form-label">Marks Obtained</label>
+            <input type="number" step="0.01" min="0" max="<%= exam.total_marks %>" class="form-control" name="marks_obtained" required>
+          </div>
+          <div class="col-md-3 mb-3">
+            <label class="form-label">Grade</label>
+            <input type="text" class="form-control" name="grade" placeholder="e.g. A, B+, Pass">
+          </div>
+          <div class="col-md-2 mb-3">
+            <button type="submit" class="btn btn-success w-100">Save Result</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <% if (results && results.length > 0) { %>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead class="table-dark">
+          <tr>
+            <th>Student</th>
+            <th>Marks</th>
+            <th>Grade</th>
+            <th>Entered On</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% results.forEach(res => { %>
+            <tr>
+              <td><%= res.student_name %></td>
+              <td><%= res.marks_obtained %> / <%= exam.total_marks %></td>
+              <td><%= res.grade || '-' %></td>
+              <td><%= new Date(res.result_date).toLocaleString() %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } else { %>
+    <div class="alert alert-info">No results have been entered yet.</div>
+  <% } %>
+
+</main>
+
+<%- include('../partials/footer') %>

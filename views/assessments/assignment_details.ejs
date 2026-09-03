@@ -1,0 +1,105 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+
+<main class="container my-5">
+  <%- include('../partials/flash') %>
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="mb-1"><%= assignment.title %></h1>
+      <p class="text-muted mb-0"><%= course.title %></p>
+    </div>
+    <a href="/courses/<%= course.course_id %>/assignments" class="btn btn-outline-secondary">Back to Assignments</a>
+  </div>
+
+  <div class="card mb-5 bg-light">
+    <div class="card-body">
+      <h5>Assignment Details</h5>
+      <p><%= assignment.description || 'No description.' %></p>
+      <ul class="list-inline mb-0">
+        <li class="list-inline-item mr-3"><strong>Max Marks:</strong> <%= assignment.max_marks %></li>
+        <li class="list-inline-item mr-3"><strong>Due Date:</strong> <%= new Date(assignment.due_date).toLocaleString() %></li>
+        <li class="list-inline-item"><strong>Late Allowed:</strong> <%= assignment.late_submission_allowed ? 'Yes' : 'No' %></li>
+      </ul>
+    </div>
+  </div>
+
+  <h2 class="mb-4">Student Submissions</h2>
+  
+  <% if (submissions && submissions.length > 0) { %>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead class="table-dark">
+          <tr>
+            <th>Student</th>
+            <th>Submitted On</th>
+            <th>File</th>
+            <th>Status</th>
+            <th>Grade</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% submissions.forEach(sub => { %>
+            <tr>
+              <td><%= sub.student_name %></td>
+              <td>
+                <%= new Date(sub.submission_date).toLocaleString() %>
+                <% if (new Date(sub.submission_date) > new Date(assignment.due_date)) { %>
+                  <span class="badge bg-danger ms-1">Late</span>
+                <% } %>
+              </td>
+              <td><a href="<%= sub.file_url %>" target="_blank" class="btn btn-sm btn-outline-info">View File</a></td>
+              <td>
+                <% if (sub.marks_obtained !== null) { %>
+                  <span class="badge bg-success">Graded</span>
+                <% } else { %>
+                  <span class="badge bg-warning text-dark">Pending</span>
+                <% } %>
+              </td>
+              <td>
+                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#gradeModal<%= sub.submission_id %>">
+                  <%= sub.marks_obtained !== null ? 'Update Grade' : 'Grade' %>
+                </button>
+
+                <!-- Grade Modal -->
+                <div class="modal fade" id="gradeModal<%= sub.submission_id %>" tabindex="-1" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <form action="/courses/<%= course.course_id %>/assignments/<%= assignment.assignment_id %>/grade/<%= sub.submission_id %>" method="POST">
+                        <div class="modal-header">
+                          <h5 class="modal-title">Grade Submission: <%= sub.student_name %></h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          <div class="mb-3">
+                            <label for="marks_obtained" class="form-label">Marks Obtained (out of <%= assignment.max_marks %>)</label>
+                            <input type="number" step="0.01" min="0" max="<%= assignment.max_marks %>" class="form-control" name="marks_obtained" value="<%= sub.marks_obtained || '' %>" required>
+                          </div>
+                          <div class="mb-3">
+                            <label for="feedback" class="form-label">Feedback</label>
+                            <textarea class="form-control" name="feedback" rows="3"><%= sub.feedback || '' %></textarea>
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                          <button type="submit" class="btn btn-success">Save Grade</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } else { %>
+    <div class="alert alert-info">No submissions have been made yet.</div>
+  <% } %>
+
+</main>
+
+<!-- Initialize Bootstrap Modals -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<%- include('../partials/footer') %>

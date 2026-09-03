@@ -3,7 +3,7 @@
 Last updated: 2026-09-03 by Cursor (Phase 4 completed)
 
 ## Current Phase
-Phase 4 — Learning Experience complete. Ready for Phase 5 (Assessments).
+Phase 5 — Assessments complete. Ready for Phase 6 (Certificates & Reviews).
 
 ## Completed Checkpoints
 - [x] Phase 0 — Project Setup & Architecture
@@ -11,7 +11,7 @@ Phase 4 — Learning Experience complete. Ready for Phase 5 (Assessments).
 - [x] Phase 2 — Course Catalog
 - [x] Phase 3 — Cart, Wishlist, Coupons & Checkout
 - [x] Phase 4 — Learning Experience
-- [ ] Phase 5 — Assessments
+- [x] Phase 5 — Assessments
 - [ ] Phase 6 — Certificates & Reviews
 - [ ] Phase 7 — Notifications & Activity Log
 - [ ] Phase 8 — Admin Panel
@@ -34,7 +34,17 @@ Phase 4 — Learning Experience complete. Ready for Phase 5 (Assessments).
     - Course detail: enrolled state shows progress + Continue Learning; curriculum unlocked for enrolled users.
     - Order success page links to `/my-courses`.
     - Routes mounted in `server.js`.
-- What's in progress / half-built: None — Phase 4 checkpoint verified.
+  - Phase 5 Assessments:
+    - `models/Assignment.js`: Transactional assignment and deadline creation.
+    - `models/Submission.js`: Submit assignment and grade logic.
+    - `models/Exam.js`: Metadata creation and manual Results entry (UPSERT).
+    - `controllers/assignmentController.js`: Instructor CRUD, student submit, instructor grade.
+    - `controllers/examController.js`: Instructor CRUD, instructor result entry.
+    - `routes/assignmentRoutes.js` & `routes/examRoutes.js`: Mounted securely under `/courses/:course_id/*`.
+    - `middleware/uploadMiddleware.js`: multer setup to `public/uploads/assignments`.
+    - `views/assessments/`: EJS templates for assignments, assignment details (grading), exams, exam details (result entry).
+    - Dashboard updates: `manage.ejs` and `myCourses.ejs` now have links to assignments and exams.
+- What's in progress / half-built: None — Phase 5 checkpoint verified.
 
 ## Decisions & Resolved Ambiguities
 (append-only — do not delete past entries)
@@ -61,11 +71,9 @@ Phase 4 — Learning Experience complete. Ready for Phase 5 (Assessments).
 - None.
 
 ## Next Steps
-1. Phase 5 — Assessments:
-   - Instructor: create assignments per course with max_marks and linked Deadlines.
-   - Student: submit assignment (multer upload), block after due_date unless late_submission_allowed.
-   - Instructor: grade submissions (marks_obtained, feedback).
-   - Exams: instructor metadata + manual Results entry (no auto-graded exam engine).
+1. Phase 6 — Certificates & Reviews:
+   - Auto-generate certificates on completion (`pdfkit`).
+   - Allow enrolled students to leave reviews (1-5 stars).
 
 ## File/Route Inventory
 | File | Purpose | Status |
@@ -143,3 +151,15 @@ Phase 4 — Learning Experience complete. Ready for Phase 5 (Assessments).
 | `views/learn/myCourses.ejs` | Student enrolled courses dashboard with progress | Built |
 | `views/learn/player.ejs` | Gated lesson player with curriculum sidebar | Built |
 | `views/error.ejs` | Error page template | Built |
+| `models/Assignment.js` | Assignment & Deadlines model | Built |
+| `models/Submission.js` | Submission model | Built |
+| `models/Exam.js` | Exam & Results model | Built |
+| `controllers/assignmentController.js` | Assignment and Submission controller | Built |
+| `controllers/examController.js` | Exam and Result controller | Built |
+| `routes/assignmentRoutes.js` | Assignment & Submission routes | Built |
+| `routes/examRoutes.js` | Exam & Result routes | Built |
+| `middleware/uploadMiddleware.js` | Multer upload configuration | Built |
+| `views/assessments/assignments.ejs` | Instructor & student assignments view | Built |
+| `views/assessments/assignment_details.ejs` | Instructor grading view | Built |
+| `views/assessments/exams.ejs` | Instructor & student exams view | Built |
+| `views/assessments/exam_details.ejs` | Instructor manual results entry view | Built |

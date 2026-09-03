@@ -84,8 +84,13 @@
               </div>
             </div>
 
-            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-muted);">
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-muted); margin-bottom: var(--space-2);">
               <span>Enrolled <%= new Date(enrollment.enrollment_date).toLocaleDateString() %></span>
+            </div>
+
+            <div style="display: flex; gap: var(--space-2); margin-bottom: var(--space-3);">
+              <a href="/courses/<%= enrollment.course_id %>/assignments" class="btn btn-secondary" style="flex: 1; text-align: center; font-size: 0.85rem; padding: 6px 0;">Assignments</a>
+              <a href="/courses/<%= enrollment.course_id %>/exams" class="btn btn-secondary" style="flex: 1; text-align: center; font-size: 0.85rem; padding: 6px 0;">Exams</a>
             </div>
 
             <a href="/learn/<%= enrollment.course_id %>" class="btn btn-primary" style="width: 100%; text-align: center;">

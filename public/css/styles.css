@@ -734,3 +734,224 @@ a:hover {
 .completion-banner.visible {
   display: block;
 }
+
+.completion-banner a,
+.link-button {
+  color: var(--ink-navy);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.link-button {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+/* Certificates & Reviews — Phase 6 (gold reserved for achievement) */
+.certificate-page {
+  padding-top: var(--space-4);
+  padding-bottom: var(--space-6);
+}
+
+.certificate-sheet {
+  background: var(--white);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-elevated);
+  padding: var(--space-4);
+  margin: var(--space-3) auto;
+  max-width: 920px;
+}
+
+.certificate-inner {
+  border: 2px solid var(--gold);
+  padding: var(--space-6);
+  text-align: center;
+  background: #FAF8F5;
+}
+
+.certificate-kicker {
+  color: var(--gold);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: var(--space-2);
+}
+
+.certificate-inner h1 {
+  font-size: 2.75rem;
+  margin-bottom: var(--space-4);
+}
+
+.certificate-copy {
+  color: var(--text-muted);
+  margin-bottom: var(--space-1);
+}
+
+.certificate-student {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  color: var(--ink-navy);
+  border-bottom: 1px solid var(--border-subtle);
+  display: inline-block;
+  padding: 0 var(--space-3) var(--space-1);
+  margin-bottom: var(--space-3);
+}
+
+.certificate-course-title {
+  font-family: var(--font-display);
+  color: var(--ink-navy);
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: var(--space-4);
+}
+
+.certificate-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+  margin: var(--space-4) 0;
+  text-align: left;
+}
+
+.certificate-meta-grid div {
+  border-top: 1px solid var(--border-subtle);
+  padding-top: var(--space-2);
+}
+
+.certificate-meta-grid span {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.certificate-meta-grid strong {
+  color: var(--ink-navy);
+}
+
+.certificate-seal {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--gold);
+  color: var(--ink-navy);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: var(--space-3);
+}
+
+.certificate-verify {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.certificate-actions {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.review-section {
+  margin-top: var(--space-6);
+}
+
+.review-section-header {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.review-section-header h2 {
+  font-size: 1.75rem;
+}
+
+.review-section-header p {
+  color: var(--text-muted);
+}
+
+.review-form,
+.review-card {
+  background: var(--white);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.review-card-current {
+  border-color: #B2D9D0;
+  background: #E8F4F1;
+}
+
+.review-list {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.review-card-top {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.review-card-top strong {
+  color: var(--ink-navy);
+  font-size: 0.95rem;
+}
+
+.review-rating {
+  color: var(--verdant);
+  font-weight: 600;
+  margin: var(--space-1) 0;
+}
+
+.review-card p {
+  color: var(--charcoal);
+  font-size: 0.95rem;
+}
+
+@media (max-width: 768px) {
+  .certificate-inner {
+    padding: var(--space-4);
+  }
+  .certificate-inner h1,
+  .certificate-student {
+    font-size: 2rem;
+  }
+  .certificate-meta-grid {
+    grid-template-columns: 1fr;
+  }
+  .certificate-actions {
+    flex-direction: column;
+  }
+}
+
+@media print {
+  .navbar,
+  .footer,
+  .alert-container,
+  .certificate-actions {
+    display: none;
+  }
+  body {
+    background: var(--white);
+  }
+  .certificate-page {
+    padding: 0;
+  }
+  .certificate-sheet {
+    box-shadow: none;
+    border: 0;
+    margin: 0;
+    max-width: none;
+  }
+}

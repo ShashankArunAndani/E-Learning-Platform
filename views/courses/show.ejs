@@ -31,6 +31,7 @@
           <div>Instructed by: <strong style="color: var(--parchment);"><%= course.instructor_name %></strong></div>
           <div><%= course.lessons.length %> Lessons</div>
           <div><%= course.duration ? `${course.duration} minutes total` : '' %></div>
+          <div><%= Number(reviewSummary.review_count || 0) > 0 ? `${parseFloat(reviewSummary.average_rating).toFixed(1)} / 5 rating` : 'No reviews yet' %></div>
         </div>
       </div>
     </section>
@@ -92,6 +93,59 @@
               </div>
             </div>
           </div>
+
+          <section id="reviews" class="review-section">
+            <div class="review-section-header">
+              <div>
+                <h2>Student Reviews</h2>
+                <p><%= Number(reviewSummary.review_count || 0) > 0 ? `${parseFloat(reviewSummary.average_rating).toFixed(1)} average across ${reviewSummary.review_count} reviews` : 'Learner feedback appears here after enrolled students review the course.' %></p>
+              </div>
+            </div>
+
+            <% if (isEnrolled && user && user.role_name === 'Student') { %>
+              <% if (currentUserReview) { %>
+                <div class="review-card review-card-current">
+                  <strong>Your review</strong>
+                  <div class="review-rating"><%= currentUserReview.rating %> / 5</div>
+                  <p><%= currentUserReview.comment || 'No written comment.' %></p>
+                </div>
+              <% } else { %>
+                <form action="/courses/<%= course.course_id %>/reviews" method="POST" class="review-form">
+                  <div class="form-group">
+                    <label for="rating" class="form-label">Rating</label>
+                    <select id="rating" name="rating" class="form-control" required>
+                      <option value="">Select rating</option>
+                      <option value="5">5 - Excellent</option>
+                      <option value="4">4 - Very good</option>
+                      <option value="3">3 - Good</option>
+                      <option value="2">2 - Fair</option>
+                      <option value="1">1 - Needs work</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="comment" class="form-label">Comment</label>
+                    <textarea id="comment" name="comment" class="form-control" rows="4" maxlength="1000" placeholder="Share what helped you learn."></textarea>
+                  </div>
+                  <button type="submit" class="btn btn-primary">Submit Review</button>
+                </form>
+              <% } %>
+            <% } %>
+
+            <% if (reviews && reviews.length > 0) { %>
+              <div class="review-list">
+                <% reviews.forEach(review => { %>
+                  <article class="review-card">
+                    <div class="review-card-top">
+                      <strong><%= review.reviewer_name %></strong>
+                      <span><%= new Date(review.created_at).toLocaleDateString() %></span>
+                    </div>
+                    <div class="review-rating"><%= review.rating %> / 5</div>
+                    <p><%= review.comment || 'No written comment.' %></p>
+                  </article>
+                <% }); %>
+              </div>
+            <% } %>
+          </section>
         </div>
 
         <!-- Right Sidebar Price & Enrollment Card -->
@@ -119,6 +173,15 @@
               <a href="/learn/<%= course.course_id %>" class="btn btn-primary" style="width: 100%; margin-bottom: var(--space-2);">
                 <%= pct > 0 ? 'Continue Learning' : 'Start Course' %> &rarr;
               </a>
+              <% if (enrollment && enrollment.completion_status === 'completed') { %>
+                <% if (enrollment.certificate_url) { %>
+                  <a href="/certificate/<%= enrollment.certificate_url %>" class="btn btn-gold" style="width: 100%; margin-bottom: var(--space-2);">View Certificate</a>
+                <% } else { %>
+                  <form action="/courses/<%= course.course_id %>/certificate" method="POST" style="margin-bottom: var(--space-2);">
+                    <button type="submit" class="btn btn-gold" style="width: 100%;">Issue Certificate</button>
+                  </form>
+                <% } %>
+              <% } %>
               <a href="/my-courses" class="btn btn-secondary" style="width: 100%;">View All My Courses</a>
             <% } else { %>
               <form action="/cart/add" method="POST" style="margin-bottom: var(--space-2);">

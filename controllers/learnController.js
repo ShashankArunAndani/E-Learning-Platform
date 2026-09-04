@@ -2,6 +2,7 @@ const Course = require('../models/Course');
 const Lesson = require('../models/Lesson');
 const Enrollment = require('../models/Enrollment');
 const Progress = require('../models/Progress');
+const Certificate = require('../models/Certificate');
 
 /**
  * Render My Courses student dashboard
@@ -167,6 +168,12 @@ const completeLesson = async (req, res) => {
     currentLesson.order_index
   );
 
+  let certificateUrl = null;
+  if (result.completion_status === 'completed') {
+    const certificate = await Certificate.issueIfEligible(user.user_id, courseId);
+    certificateUrl = certificate.certificate_url;
+  }
+
   const currentIndex = lessons.findIndex(l => l.lesson_id === lessonId);
   const nextLesson = currentIndex < lessons.length - 1 ? lessons[currentIndex + 1] : null;
 
@@ -174,6 +181,7 @@ const completeLesson = async (req, res) => {
     return res.json({
       success: true,
       progress: result,
+      certificateUrl,
       nextLessonUrl: nextLesson ? `/learn/${courseId}/lessons/${nextLesson.lesson_id}` : null
     });
   }
@@ -182,7 +190,7 @@ const completeLesson = async (req, res) => {
     req.flash('success_msg', 'Lesson completed! Advanced to next lesson.');
     return res.redirect(`/learn/${courseId}/lessons/${nextLesson.lesson_id}`);
   } else {
-    req.flash('success_msg', 'Congratulations! You have completed all lessons in this course!');
+    req.flash('success_msg', 'Congratulations! Your certificate has been issued.');
     return res.redirect(`/learn/${courseId}/lessons/${lessonId}`);
   }
 };

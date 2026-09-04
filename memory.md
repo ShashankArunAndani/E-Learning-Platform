@@ -1,9 +1,9 @@
 # Project Memory — E-Learning Platform
 
-Last updated: 2026-09-03 by Cursor (Phase 4 completed)
+Last updated: 2026-09-04 by Codex (Phase 6 completed)
 
 ## Current Phase
-Phase 5 — Assessments complete. Ready for Phase 6 (Certificates & Reviews).
+Phase 6 — Certificates & Reviews complete. Ready for Phase 7 (Notifications & Activity Log).
 
 ## Completed Checkpoints
 - [x] Phase 0 — Project Setup & Architecture
@@ -12,7 +12,7 @@ Phase 5 — Assessments complete. Ready for Phase 6 (Certificates & Reviews).
 - [x] Phase 3 — Cart, Wishlist, Coupons & Checkout
 - [x] Phase 4 — Learning Experience
 - [x] Phase 5 — Assessments
-- [ ] Phase 6 — Certificates & Reviews
+- [x] Phase 6 — Certificates & Reviews
 - [ ] Phase 7 — Notifications & Activity Log
 - [ ] Phase 8 — Admin Panel
 - [ ] Phase 9 — Hardening, Testing, Polish
@@ -44,7 +44,19 @@ Phase 5 — Assessments complete. Ready for Phase 6 (Certificates & Reviews).
     - `middleware/uploadMiddleware.js`: multer setup to `public/uploads/assignments`.
     - `views/assessments/`: EJS templates for assignments, assignment details (grading), exams, exam details (result entry).
     - Dashboard updates: `manage.ejs` and `myCourses.ejs` now have links to assignments and exams.
-- What's in progress / half-built: None — Phase 5 checkpoint verified.
+  - Phase 6 Certificates & Reviews:
+    - `models/Certificate.js`: completion-based certificate issuance with unique verification token and public lookup.
+    - `models/Review.js`: enrolled-only review creation, duplicate review handling, course review listing, and average rating summary.
+    - `controllers/certificateController.js`: certificate request and public verification rendering.
+    - `controllers/reviewController.js`: review validation result handling and enrolled-student submission.
+    - `routes/certificateRoutes.js`: POST certificate request and public `/certificate/:certificate_url` verification route.
+    - `routes/reviewRoutes.js`: enrolled review submission route under `/courses/:id/reviews`.
+    - `controllers/learnController.js`: auto-issues a certificate when lesson completion reaches course completion.
+    - `models/Course.js` and `models/Enrollment.js`: course rating aggregate and certificate URL data for catalog/course/my-courses displays.
+    - `views/certificates/show.ejs`: verifiable certificate page with print/save-as-PDF action.
+    - `views/courses/index.ejs`, `views/courses/show.ejs`, `views/learn/myCourses.ejs`, `views/learn/player.ejs`: Phase 6 UI surfaces.
+    - `public/css/styles.css`: certificate/review styles aligned to `design_system.md`.
+- What's in progress / half-built: None — Phase 6 checkpoint verified by syntax checks.
 
 ## Decisions & Resolved Ambiguities
 (append-only — do not delete past entries)
@@ -66,14 +78,16 @@ Phase 5 — Assessments complete. Ready for Phase 6 (Certificates & Reviews).
 - 2026-09-01: **Payment Auto-Enrollment Hard Rule** — `Payment.processPaymentAndEnroll` executes inside a MySQL transaction. On payment success, updates `Orders.status = 'completed'` and auto-creates `Enrollments` and `Progress` rows. Failed payments set `Orders.status = 'failed'` and NEVER create `Enrollments`.
 - 2026-09-03: **Progress completion logic** — `recordLessonCompletion` advances `completed_lessons` to `max(current, lesson.order_index)` inside a transaction, recalculates `completion_percentage`, syncs `Enrollments.completion_status` (`not_started`/`in_progress`/`completed`) per DFD-2.7 Process 7.13–7.14.
 - 2026-09-03: **Lesson player access** — Enrolled students + course owner/admin can access `/learn/:course_id/lessons/:lesson_id`. Non-enrolled users redirected with paywall denial (DFD-2.7 Process 7.10).
+- 2026-09-04: **Phase 6 certificates** — Certificates are issued from progress/enrollment completion only, using a unique `certificate_url` token and public `/certificate/:certificate_url` verification route per DFD-2.10. PDF generation is not added because `pdfkit` is optional and not currently installed; the certificate page supports browser print/save-as-PDF.
+- 2026-09-04: **Phase 6 reviews** — Reviews require authentication plus enrollment, validate rating 1-5, and rely on the schema unique key for one review per user/course with friendly duplicate handling per DFD-2.11.
 
 ## Known Issues / Blockers
 - None.
 
 ## Next Steps
-1. Phase 6 — Certificates & Reviews:
-   - Auto-generate certificates on completion (`pdfkit`).
-   - Allow enrolled students to leave reviews (1-5 stars).
+1. Phase 7 — Notifications & Activity Log:
+   - Add in-app notification rows for enrollment/payment/assignment/certificate events.
+   - Expose unread notification UI and admin activity log view.
 
 ## File/Route Inventory
 | File | Purpose | Status |
@@ -99,6 +113,8 @@ Phase 5 — Assessments complete. Ready for Phase 6 (Certificates & Reviews).
 | `models/Payment.js` | Payments & Auto-Enrollment transaction model | Built |
 | `models/Enrollment.js` | Enrollments query model with progress JOINs | Built & Updated |
 | `models/Progress.js` | Progress tracking & enrollment sync model | Built |
+| `models/Certificate.js` | Certificates issuance and verification lookup model | Built |
+| `models/Review.js` | Enrolled student reviews and rating aggregation model | Built |
 | `middleware/authMiddleware.js` | `isAuthenticated` & `authorize` RBAC middleware | Built |
 | `middleware/validationMiddleware.js` | express-validator for auth, course, category, lesson, and coupon forms | Built & Updated |
 | `middleware/errorHandler.js` | Centralized error handler | Built |
@@ -114,6 +130,8 @@ Phase 5 — Assessments complete. Ready for Phase 6 (Certificates & Reviews).
 | `controllers/couponController.js` | Admin Coupon Management controller | Built |
 | `controllers/checkoutController.js` | Transactional Checkout & Test Payment Gateway controller | Built |
 | `controllers/learnController.js` | My Courses, lesson player, completion sync controller | Built |
+| `controllers/certificateController.js` | Certificate request and public verification controller | Built |
+| `controllers/reviewController.js` | Course review submission controller | Built |
 | `routes/indexRoutes.js` | `/` route | Built |
 | `routes/authRoutes.js` | `/register`, `/login`, `/logout` routes | Built |
 | `routes/dashboardRoutes.js` | `/dashboard`, `/dashboard/instructor`, `/dashboard/admin` | Built |
@@ -125,6 +143,8 @@ Phase 5 — Assessments complete. Ready for Phase 6 (Certificates & Reviews).
 | `routes/couponRoutes.js` | `/coupons` (GET, POST, toggle) routes | Built |
 | `routes/checkoutRoutes.js` | `/checkout/initiate`, `/checkout/:id`, `/checkout/:id/pay`, `/orders`, `/orders/:id/success` routes | Built |
 | `routes/learnRoutes.js` | `/my-courses`, `/learn/:course_id`, lesson player, complete routes | Built |
+| `routes/certificateRoutes.js` | Certificate request and `/certificate/:certificate_url` verification routes | Built |
+| `routes/reviewRoutes.js` | Enrolled student course review submission route | Built |
 | `public/css/tokens.css` | Design system CSS tokens | Built |
 | `public/css/styles.css` | Academic typography & component styling | Built & Updated |
 | `public/js/learn-player.js` | Real-time lesson completion & progress bar update | Built |
@@ -150,6 +170,7 @@ Phase 5 — Assessments complete. Ready for Phase 6 (Certificates & Reviews).
 | `views/orders/index.ejs` | Student Order History view | Built |
 | `views/learn/myCourses.ejs` | Student enrolled courses dashboard with progress | Built |
 | `views/learn/player.ejs` | Gated lesson player with curriculum sidebar | Built |
+| `views/certificates/show.ejs` | Public verifiable certificate page | Built |
 | `views/error.ejs` | Error page template | Built |
 | `models/Assignment.js` | Assignment & Deadlines model | Built |
 | `models/Submission.js` | Submission model | Built |

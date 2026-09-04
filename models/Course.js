@@ -144,6 +144,8 @@ class Course {
       SELECT c.course_id, c.title, c.description, c.instructor_id, u.name AS instructor_name,
              c.price, c.duration, c.level, c.created_at, c.status,
              COUNT(DISTINCT l.lesson_id) AS lesson_count,
+             COALESCE(AVG(r.rating), 0) AS average_rating,
+             COUNT(DISTINCT r.review_id) AS review_count,
              GROUP_CONCAT(DISTINCT cat.category_name SEPARATOR ', ') AS category_names,
              GROUP_CONCAT(DISTINCT cat.category_id) AS category_ids
       FROM Courses c
@@ -151,6 +153,7 @@ class Course {
       LEFT JOIN Course_Category cc ON c.course_id = cc.course_id
       LEFT JOIN Categories cat ON cc.category_id = cat.category_id
       LEFT JOIN Lessons l ON c.course_id = l.course_id
+      LEFT JOIN Reviews r ON c.course_id = r.course_id
       WHERE c.status = 'published'
     `;
 

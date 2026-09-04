@@ -13,7 +13,7 @@
   const completeBanner = document.getElementById('course-complete-banner');
   const nextLessonLink = document.getElementById('next-lesson-link');
 
-  function updateProgressUI(progress) {
+  function updateProgressUI(progress, certificateUrl) {
     const pct = Math.min(100, parseFloat(progress.completion_percentage || 0));
     const width = pct + '%';
 
@@ -25,6 +25,10 @@
 
     if (progress.completion_status === 'completed' && completeBanner) {
       completeBanner.classList.add('visible');
+      if (certificateUrl) {
+        const link = completeBanner.querySelector('a');
+        if (link) link.href = '/certificate/' + certificateUrl;
+      }
     }
   }
 
@@ -48,7 +52,7 @@
         throw new Error(data.error || 'Failed to mark lesson complete');
       }
 
-      updateProgressUI(data.progress);
+      updateProgressUI(data.progress, data.certificateUrl);
 
       const doneLabel = document.createElement('span');
       doneLabel.style.fontSize = '0.85rem';

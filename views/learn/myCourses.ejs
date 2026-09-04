@@ -93,15 +93,22 @@
               <a href="/courses/<%= enrollment.course_id %>/exams" class="btn btn-secondary" style="flex: 1; text-align: center; font-size: 0.85rem; padding: 6px 0;">Exams</a>
             </div>
 
-            <a href="/learn/<%= enrollment.course_id %>" class="btn btn-primary" style="width: 100%; text-align: center;">
-              <% if (enrollment.completion_status === 'completed') { %>
-                Review Course
-              <% } else if (enrollment.completion_status === 'in_progress') { %>
-                Continue Learning &rarr;
-              <% } else { %>
-                Start Course &rarr;
-              <% } %>
-            </a>
+            <% if (enrollment.completion_status === 'completed') { %>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2);">
+                <% if (enrollment.certificate_url) { %>
+                  <a href="/certificate/<%= enrollment.certificate_url %>" class="btn btn-gold" style="text-align: center;">Certificate</a>
+                <% } else { %>
+                  <form action="/courses/<%= enrollment.course_id %>/certificate" method="POST">
+                    <button type="submit" class="btn btn-gold" style="width: 100%;">Certificate</button>
+                  </form>
+                <% } %>
+                <a href="/courses/<%= enrollment.course_id %>#reviews" class="btn btn-primary" style="text-align: center;">Review Course</a>
+              </div>
+            <% } else { %>
+              <a href="/learn/<%= enrollment.course_id %>" class="btn btn-primary" style="width: 100%; text-align: center;">
+                <%= enrollment.completion_status === 'in_progress' ? 'Continue Learning' : 'Start Course' %> &rarr;
+              </a>
+            <% } %>
           </article>
         <% }); %>
       </div>

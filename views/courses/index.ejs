@@ -76,6 +76,9 @@
               <div>
                 <div style="font-size: 0.8rem; color: var(--text-muted);">Instructor: <strong><%= course.instructor_name %></strong></div>
                 <div style="font-size: 0.8rem; color: var(--text-muted);"><%= course.lesson_count || 0 %> Lessons <%= course.duration ? `• ${course.duration} mins` : '' %></div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">
+                  <%= Number(course.review_count || 0) > 0 ? `${parseFloat(course.average_rating).toFixed(1)} / 5 from ${course.review_count} reviews` : 'No reviews yet' %>
+                </div>
               </div>
               <div style="text-align: right;">
                 <div style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; color: var(--ink-navy);">

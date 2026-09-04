@@ -25,11 +25,13 @@ class Enrollment {
       `SELECT e.enrollment_id, e.user_id, e.course_id, e.enrollment_date, e.completion_status, e.progress_percentage,
               c.title AS course_title, c.description AS course_description, c.level,
               u.name AS instructor_name,
-              p.completed_lessons, p.total_lessons, p.last_accessed_lesson
+              p.completed_lessons, p.total_lessons, p.last_accessed_lesson,
+              cert.certificate_url, cert.issue_date AS certificate_issue_date
        FROM Enrollments e
        INNER JOIN Courses c ON e.course_id = c.course_id
        INNER JOIN Users u ON c.instructor_id = u.user_id
        LEFT JOIN Progress p ON (e.user_id = p.user_id AND e.course_id = p.course_id)
+       LEFT JOIN Certificates cert ON (e.user_id = cert.user_id AND e.course_id = cert.course_id)
        WHERE e.user_id = ?
        ORDER BY e.enrollment_date DESC`,
       [userId]
@@ -46,11 +48,13 @@ class Enrollment {
       `SELECT e.enrollment_id, e.user_id, e.course_id, e.enrollment_date, e.completion_status, e.progress_percentage,
               c.title AS course_title, c.description AS course_description, c.level, c.instructor_id,
               u.name AS instructor_name,
-              p.progress_id, p.completed_lessons, p.total_lessons, p.last_accessed_lesson, p.completion_percentage AS prog_percentage
+              p.progress_id, p.completed_lessons, p.total_lessons, p.last_accessed_lesson, p.completion_percentage AS prog_percentage,
+              cert.certificate_url, cert.issue_date AS certificate_issue_date
        FROM Enrollments e
        INNER JOIN Courses c ON e.course_id = c.course_id
        INNER JOIN Users u ON c.instructor_id = u.user_id
        LEFT JOIN Progress p ON (e.user_id = p.user_id AND e.course_id = p.course_id)
+       LEFT JOIN Certificates cert ON (e.user_id = cert.user_id AND e.course_id = cert.course_id)
        WHERE e.user_id = ? AND e.course_id = ?`,
       [userId, courseId]
     );

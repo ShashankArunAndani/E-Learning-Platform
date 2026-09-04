@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head') %>
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <main class="container certificate-page">
+    <%- include('../partials/flash') %>
+
+    <section class="certificate-sheet">
+      <div class="certificate-inner">
+        <div class="certificate-kicker">Verified Certificate of Completion</div>
+        <h1>Certificate of Completion</h1>
+        <p class="certificate-copy">This certifies that</p>
+        <div class="certificate-student"><%= certificate.student_name %></div>
+        <p class="certificate-copy">has successfully completed</p>
+        <div class="certificate-course-title"><%= certificate.course_title %></div>
+
+        <div class="certificate-meta-grid">
+          <div>
+            <span>Instructor</span>
+            <strong><%= certificate.instructor_name %></strong>
+          </div>
+          <div>
+            <span>Issued</span>
+            <strong><%= new Date(certificate.issue_date).toLocaleDateString() %></strong>
+          </div>
+          <div>
+            <span>Credential ID</span>
+            <strong><%= certificate.certificate_url.slice(0, 12).toUpperCase() %></strong>
+          </div>
+        </div>
+
+        <div class="certificate-seal">A</div>
+        <p class="certificate-verify">
+          Verify at /certificate/<%= certificate.certificate_url %>
+        </p>
+      </div>
+    </section>
+
+    <div class="certificate-actions">
+      <button class="btn btn-gold" type="button" onclick="window.print()">Print or Save as PDF</button>
+      <a class="btn btn-secondary" href="/courses/<%= certificate.course_id %>">Back to Course</a>
+    </div>
+  </main>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

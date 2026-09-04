@@ -140,6 +140,13 @@
             </div>
             <div class="completion-banner <%= isCourseComplete ? 'visible' : '' %>" id="course-complete-banner">
               Congratulations! You have completed all lessons in this course.
+              <% if (enrollment && enrollment.certificate_url) { %>
+                <a href="/certificate/<%= enrollment.certificate_url %>">View certificate</a>
+              <% } else { %>
+                <form action="/courses/<%= course.course_id %>/certificate" method="POST" style="display: inline;">
+                  <button type="submit" class="link-button">Issue certificate</button>
+                </form>
+              <% } %>
             </div>
           </div>
         <% } %>

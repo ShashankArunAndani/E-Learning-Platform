@@ -2,6 +2,7 @@ const Course = require('../models/Course');
 const Category = require('../models/Category');
 const ActivityLog = require('../models/ActivityLog');
 const Enrollment = require('../models/Enrollment');
+const Review = require('../models/Review');
 
 /**
  * Public Course Catalog view with search and filters
@@ -56,12 +57,17 @@ const renderCourseDetail = async (req, res) => {
 
   let isEnrolled = false;
   let enrollment = null;
+  let currentUserReview = null;
   if (currentUser) {
     isEnrolled = await Enrollment.isEnrolled(currentUser.user_id, courseId);
     if (isEnrolled) {
       enrollment = await Enrollment.getEnrollment(currentUser.user_id, courseId);
+      currentUserReview = await Review.findByUserAndCourse(currentUser.user_id, courseId);
     }
   }
+
+  const reviews = await Review.findByCourse(courseId);
+  const reviewSummary = await Review.getSummary(courseId);
 
   res.render('courses/show', {
     title: `${course.title} — E-Learning Platform`,
@@ -69,6 +75,9 @@ const renderCourseDetail = async (req, res) => {
     isOwner,
     isEnrolled,
     enrollment,
+    reviews,
+    reviewSummary,
+    currentUserReview,
     user: currentUser,
     success_msg: req.flash('success_msg'),
     error_msg: req.flash('error_msg')

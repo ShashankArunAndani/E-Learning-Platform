@@ -26,6 +26,8 @@ const assignmentRoutes = require('./routes/assignmentRoutes');
 const examRoutes = require('./routes/examRoutes');
 const certificateRoutes = require('./routes/certificateRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
+const Notification = require('./models/Notification');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -52,11 +54,11 @@ if (process.env.NODE_ENV !== 'test') {
 
 // Rate limiting for Auth routes to prevent brute-force attacks
 const authRateLimiter = rateLimit({
-  windowMs: 5 * 60 * 1000,
+  windowMs: 1 * 60 * 1000,
   max: 30,
   standardHeaders: true,
   legacyHeaders: false,
-  message: 'Too many login attempts from this IP. Please try again after 5 minutes.'
+  message: 'Too many login attempts from this IP. Please try again after 1 minute.'
 });
 
 // Body parsing middleware
@@ -77,11 +79,20 @@ app.use(sessionConfig);
 app.use(flash());
 
 // Global template variables middleware
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
   res.locals.user = req.session ? req.session.user || null : null;
   res.locals.success_msg = req.flash('success_msg');
   res.locals.error_msg = req.flash('error_msg');
-  next();
+  res.locals.unreadNotificationCount = 0;
+
+  try {
+    if (res.locals.user) {
+      res.locals.unreadNotificationCount = await Notification.getUnreadCount(res.locals.user.user_id);
+    }
+    next();
+  } catch (error) {
+    next(error);
+  }
 });
 
 // Mount Routes
@@ -98,6 +109,7 @@ app.use('/', checkoutRoutes);
 app.use('/', learnRoutes);
 app.use('/', certificateRoutes);
 app.use('/', reviewRoutes);
+app.use('/', notificationRoutes);
 app.use('/courses/:course_id/assignments', assignmentRoutes);
 app.use('/courses/:course_id/exams', examRoutes);
 

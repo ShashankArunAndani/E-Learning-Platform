@@ -1,9 +1,9 @@
 # Project Memory — E-Learning Platform
 
-Last updated: 2026-09-04 by Codex (Phase 6 completed)
+Last updated: 2026-09-05 by Codex (Phase 7 completed)
 
 ## Current Phase
-Phase 6 — Certificates & Reviews complete. Ready for Phase 7 (Notifications & Activity Log).
+Phase 7 — Notifications & Activity Log complete. Ready for Phase 8 (Admin Panel).
 
 ## Completed Checkpoints
 - [x] Phase 0 — Project Setup & Architecture
@@ -13,7 +13,7 @@ Phase 6 — Certificates & Reviews complete. Ready for Phase 7 (Notifications & 
 - [x] Phase 4 — Learning Experience
 - [x] Phase 5 — Assessments
 - [x] Phase 6 — Certificates & Reviews
-- [ ] Phase 7 — Notifications & Activity Log
+- [x] Phase 7 — Notifications & Activity Log
 - [ ] Phase 8 — Admin Panel
 - [ ] Phase 9 — Hardening, Testing, Polish
 - [ ] Phase 10 — Deployment
@@ -56,7 +56,20 @@ Phase 6 — Certificates & Reviews complete. Ready for Phase 7 (Notifications & 
     - `views/certificates/show.ejs`: verifiable certificate page with print/save-as-PDF action.
     - `views/courses/index.ejs`, `views/courses/show.ejs`, `views/learn/myCourses.ejs`, `views/learn/player.ejs`: Phase 6 UI surfaces.
     - `public/css/styles.css`: certificate/review styles aligned to `design_system.md`.
-- What's in progress / half-built: None — Phase 6 checkpoint verified by syntax checks.
+  - Phase 7 Notifications & Activity Log:
+    - `models/Notification.js`: in-app notification creation, unread count, per-user listing, mark-one/mark-all read.
+    - `controllers/notificationController.js`: authenticated notification inbox and read actions.
+    - `routes/notificationRoutes.js`: `/notifications`, `/notifications/read-all`, `/notifications/:notification_id/read`.
+    - `views/notifications/index.ejs`: in-app notification inbox styled with design tokens.
+    - `server.js`: unread notification count loaded into global EJS locals.
+    - Navbar: authenticated users see Notifications link with unread count badge.
+    - `models/Payment.js`: payment success/failure notifications and enrollment notifications created inside payment transaction.
+    - `controllers/learnController.js` and `controllers/certificateController.js`: certificate-issued notifications created only for newly issued certificates.
+    - `controllers/assignmentController.js` and `controllers/examController.js`: assignment grading and manual exam result notifications.
+    - Admin dashboard: recent Activity_Log view shows action, actor, IP, timestamp, and metadata JSON.
+    - Assessment route permissions corrected to seeded permission names (`course:browse`, `course:edit`, `assignment:submit`, `assignment:grade`).
+    - `models/Submission.js` and `models/Exam.js`: insert/UPSERT result handling corrected for `db.query` ResultSetHeader returns.
+- What's in progress / half-built: None — Phase 7 checkpoint verified by syntax checks and server module load.
 
 ## Decisions & Resolved Ambiguities
 (append-only — do not delete past entries)
@@ -80,20 +93,22 @@ Phase 6 — Certificates & Reviews complete. Ready for Phase 7 (Notifications & 
 - 2026-09-03: **Lesson player access** — Enrolled students + course owner/admin can access `/learn/:course_id/lessons/:lesson_id`. Non-enrolled users redirected with paywall denial (DFD-2.7 Process 7.10).
 - 2026-09-04: **Phase 6 certificates** — Certificates are issued from progress/enrollment completion only, using a unique `certificate_url` token and public `/certificate/:certificate_url` verification route per DFD-2.10. PDF generation is not added because `pdfkit` is optional and not currently installed; the certificate page supports browser print/save-as-PDF.
 - 2026-09-04: **Phase 6 reviews** — Reviews require authentication plus enrollment, validate rating 1-5, and rely on the schema unique key for one review per user/course with friendly duplicate handling per DFD-2.11.
+- 2026-09-05: **Phase 7 notifications** — In-app is the only implemented notification channel. App events create `Notifications.channel = 'in_app'` rows with `status = 'sent'`; read actions update `status = 'read'` and `read_at`, matching DFD-2.12 without adding email/SMS providers.
+- 2026-09-05: **Phase 7 audit log** — Existing `Activity_Log` writes remain the audit source; admin visibility is through `/dashboard/admin`, which now renders metadata JSON alongside action, user, IP, and timestamp per DFD-2.13.
 
 ## Known Issues / Blockers
 - None.
 
 ## Next Steps
-1. Phase 7 — Notifications & Activity Log:
-   - Add in-app notification rows for enrollment/payment/assignment/certificate events.
-   - Expose unread notification UI and admin activity log view.
+1. Phase 8 — Admin Panel:
+   - Add user management, course moderation, order/payment overview, and metrics.
+2. Phase 9 — Hardening, Testing, Polish after Phase 8 is demoable.
 
 ## File/Route Inventory
 | File | Purpose | Status |
 |---|---|---|
 | `package.json` | Project dependencies & scripts | Built |
-| `server.js` | Express app entry point & middleware pipeline | Built & Updated |
+| `server.js` | Express app entry point, middleware pipeline, unread notification locals | Built & Updated |
 | `config/db.js` | MySQL pool setup & parameterized query helper | Built |
 | `config/session.js` | express-session configuration | Built |
 | `scripts/initDb.js` | Database & schema initializer & seed script | Built & Executed |
@@ -110,18 +125,19 @@ Phase 6 — Certificates & Reviews complete. Ready for Phase 7 (Notifications & 
 | `models/Cart.js` | Cart and Cart_Items raw SQL model | Built |
 | `models/Coupon.js` | Coupons table & discount calculation model | Built |
 | `models/Order.js` | Orders & Order_Items transactional model | Built |
-| `models/Payment.js` | Payments & Auto-Enrollment transaction model | Built |
+| `models/Payment.js` | Payments, Auto-Enrollment, and payment/enrollment notifications | Built & Updated |
 | `models/Enrollment.js` | Enrollments query model with progress JOINs | Built & Updated |
 | `models/Progress.js` | Progress tracking & enrollment sync model | Built |
-| `models/Certificate.js` | Certificates issuance and verification lookup model | Built |
+| `models/Certificate.js` | Certificates issuance and verification lookup model | Built & Updated |
 | `models/Review.js` | Enrolled student reviews and rating aggregation model | Built |
+| `models/Notification.js` | In-app notification creation, unread count, and read actions | Built |
 | `middleware/authMiddleware.js` | `isAuthenticated` & `authorize` RBAC middleware | Built |
 | `middleware/validationMiddleware.js` | express-validator for auth, course, category, lesson, and coupon forms | Built & Updated |
 | `middleware/errorHandler.js` | Centralized error handler | Built |
 | `utils/asyncHandler.js` | Controller async error forwarding helper | Built |
 | `controllers/homeController.js` | Landing page controller | Built |
 | `controllers/authController.js` | Register, Login, Logout, Audit log controller | Built |
-| `controllers/dashboardController.js` | Main, Instructor & Admin dashboard controller | Built |
+| `controllers/dashboardController.js` | Main, Instructor & Admin dashboard controller with audit log data | Built |
 | `controllers/categoryController.js` | Admin Category CRUD controller | Built |
 | `controllers/courseController.js` | Public Catalog & Instructor Course CRUD controller | Built & Updated |
 | `controllers/lessonController.js` | Ordered Lesson Management controller | Built |
@@ -129,9 +145,10 @@ Phase 6 — Certificates & Reviews complete. Ready for Phase 7 (Notifications & 
 | `controllers/cartController.js` | Shopping Cart & Coupon application controller | Built |
 | `controllers/couponController.js` | Admin Coupon Management controller | Built |
 | `controllers/checkoutController.js` | Transactional Checkout & Test Payment Gateway controller | Built |
-| `controllers/learnController.js` | My Courses, lesson player, completion sync controller | Built |
-| `controllers/certificateController.js` | Certificate request and public verification controller | Built |
+| `controllers/learnController.js` | My Courses, lesson player, completion sync, certificate notification controller | Built & Updated |
+| `controllers/certificateController.js` | Certificate request, notification, and public verification controller | Built & Updated |
 | `controllers/reviewController.js` | Course review submission controller | Built |
+| `controllers/notificationController.js` | Notification inbox and read-state controller | Built |
 | `routes/indexRoutes.js` | `/` route | Built |
 | `routes/authRoutes.js` | `/register`, `/login`, `/logout` routes | Built |
 | `routes/dashboardRoutes.js` | `/dashboard`, `/dashboard/instructor`, `/dashboard/admin` | Built |
@@ -145,11 +162,12 @@ Phase 6 — Certificates & Reviews complete. Ready for Phase 7 (Notifications & 
 | `routes/learnRoutes.js` | `/my-courses`, `/learn/:course_id`, lesson player, complete routes | Built |
 | `routes/certificateRoutes.js` | Certificate request and `/certificate/:certificate_url` verification routes | Built |
 | `routes/reviewRoutes.js` | Enrolled student course review submission route | Built |
+| `routes/notificationRoutes.js` | Notification inbox and mark-read routes | Built |
 | `public/css/tokens.css` | Design system CSS tokens | Built |
-| `public/css/styles.css` | Academic typography & component styling | Built & Updated |
+| `public/css/styles.css` | Academic typography, component styling, notification/activity styles | Built & Updated |
 | `public/js/learn-player.js` | Real-time lesson completion & progress bar update | Built |
 | `views/partials/head.ejs` | HTML head with Google Fonts & CSS links | Built |
-| `views/partials/navbar.ejs` | Responsive navigation partial with My Courses link | Built & Updated |
+| `views/partials/navbar.ejs` | Responsive navigation partial with notification count | Built & Updated |
 | `views/partials/footer.ejs` | Footer partial | Built |
 | `views/partials/flash.ejs` | Alert notification partial | Built |
 | `views/index.ejs` | Home landing page with hero certificate mockup | Built |
@@ -171,14 +189,15 @@ Phase 6 — Certificates & Reviews complete. Ready for Phase 7 (Notifications & 
 | `views/learn/myCourses.ejs` | Student enrolled courses dashboard with progress | Built |
 | `views/learn/player.ejs` | Gated lesson player with curriculum sidebar | Built |
 | `views/certificates/show.ejs` | Public verifiable certificate page | Built |
+| `views/notifications/index.ejs` | In-app notification inbox | Built |
 | `views/error.ejs` | Error page template | Built |
 | `models/Assignment.js` | Assignment & Deadlines model | Built |
-| `models/Submission.js` | Submission model | Built |
-| `models/Exam.js` | Exam & Results model | Built |
-| `controllers/assignmentController.js` | Assignment and Submission controller | Built |
-| `controllers/examController.js` | Exam and Result controller | Built |
-| `routes/assignmentRoutes.js` | Assignment & Submission routes | Built |
-| `routes/examRoutes.js` | Exam & Result routes | Built |
+| `models/Submission.js` | Submission model | Built & Updated |
+| `models/Exam.js` | Exam & Results model | Built & Updated |
+| `controllers/assignmentController.js` | Assignment and Submission controller with grading notifications | Built & Updated |
+| `controllers/examController.js` | Exam and Result controller with result notifications | Built & Updated |
+| `routes/assignmentRoutes.js` | Assignment & Submission routes with seeded permissions | Built & Updated |
+| `routes/examRoutes.js` | Exam & Result routes with seeded permissions | Built & Updated |
 | `middleware/uploadMiddleware.js` | Multer upload configuration | Built |
 | `views/assessments/assignments.ejs` | Instructor & student assignments view | Built |
 | `views/assessments/assignment_details.ejs` | Instructor grading view | Built |

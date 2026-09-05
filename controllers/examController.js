@@ -1,6 +1,6 @@
 const Exam = require('../models/Exam');
 const Course = require('../models/Course');
-const Enrollment = require('../models/Enrollment');
+const Notification = require('../models/Notification');
 const asyncHandler = require('../utils/asyncHandler');
 
 // @desc    Get exams for a course
@@ -19,9 +19,9 @@ exports.getExams = asyncHandler(async (req, res) => {
   
   // If student, get their results
   let userResults = {};
-  if (req.session.role === 'Student') {
+  if (req.session.user && req.session.user.role_name === 'Student') {
     for (const exam of exams) {
-      const result = await Exam.findResultByStudentAndExam(req.session.user_id, exam.exam_id);
+      const result = await Exam.findResultByStudentAndExam(req.session.user.user_id, exam.exam_id);
       if (result) {
         userResults[exam.exam_id] = result;
       }
@@ -33,8 +33,8 @@ exports.getExams = asyncHandler(async (req, res) => {
     course,
     exams,
     userResults,
-    role: req.session.role,
-    user: req.session
+    role: req.session.user.role_name,
+    user: req.session.user
   });
 });
 
@@ -71,10 +71,7 @@ exports.getExamDetails = asyncHandler(async (req, res) => {
   }
 
   const results = await Exam.findResultsByExam(exam_id);
-  // Get all enrolled students for this course to show in the dropdown for result entry
-  const enrollments = await Enrollment.getUserEnrollments(null); // Wait, this method gets enrollments for a user. We need students for a course.
-  
-  // Let's query db directly for enrolled students of this course
+  // Fetch enrolled students for manual result entry per the Phase 5 exam scope.
   const db = require('../config/db');
   const enrolledStudents = await db.query(
     `SELECT u.user_id, u.name, u.email 
@@ -90,8 +87,8 @@ exports.getExamDetails = asyncHandler(async (req, res) => {
     exam,
     results,
     enrolledStudents,
-    role: req.session.role,
-    user: req.session
+    role: req.session.user.role_name,
+    user: req.session.user
   });
 });
 
@@ -115,6 +112,14 @@ exports.enterResult = asyncHandler(async (req, res) => {
     marks_obtained,
     grade
   });
+
+  // DFD-2.9/2.12: manual exam result entry creates an in-app notification.
+  await Notification.createInApp(
+    user_id,
+    `Your result for ${exam.title} is available: ${marks_obtained}/${exam.total_marks}${grade ? ` (${grade})` : ''}.`,
+    'exam',
+    'normal'
+  );
 
   req.flash('success_msg', 'Result entered successfully.');
   res.redirect(`/courses/${course_id}/exams/${exam_id}`);

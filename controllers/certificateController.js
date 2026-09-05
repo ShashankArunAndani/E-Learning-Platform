@@ -1,4 +1,6 @@
 const Certificate = require('../models/Certificate');
+const Course = require('../models/Course');
+const Notification = require('../models/Notification');
 
 const handleCertificateRequest = async (req, res) => {
   const courseId = parseInt(req.params.id, 10);
@@ -6,6 +8,15 @@ const handleCertificateRequest = async (req, res) => {
 
   try {
     const certificate = await Certificate.issueIfEligible(userId, courseId);
+    if (certificate.wasIssued) {
+      const course = await Course.findById(courseId);
+      await Notification.createInApp(
+        userId,
+        `Your certificate for ${course ? course.title : 'your completed course'} has been issued.`,
+        'certificate',
+        'high'
+      );
+    }
     req.flash('success_msg', 'Certificate issued. It is ready to verify or print.');
     return res.redirect(`/certificate/${certificate.certificate_url}`);
   } catch (error) {

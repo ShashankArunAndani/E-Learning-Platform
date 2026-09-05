@@ -7,15 +7,15 @@ const examController = require('../controllers/examController');
 router.use(isAuthenticated);
 
 // GET /courses/:course_id/exams (Student and Instructor)
-router.get('/', authorize('manage_courses', 'view_courses', 'enroll_courses'), examController.getExams);
+router.get('/', authorize('course:browse'), examController.getExams);
 
 // POST /courses/:course_id/exams (Instructor only)
-router.post('/', authorize('manage_courses'), examController.createExam);
+router.post('/', authorize('course:edit'), examController.createExam);
 
 // GET /courses/:course_id/exams/:exam_id (Instructor view results entry)
-router.get('/:exam_id', authorize('manage_courses'), examController.getExamDetails);
+router.get('/:exam_id', authorize('assignment:grade'), examController.getExamDetails);
 
 // POST /courses/:course_id/exams/:exam_id/results (Instructor only - manual result entry)
-router.post('/:exam_id/results', authorize('manage_courses'), examController.enterResult);
+router.post('/:exam_id/results', authorize('assignment:grade'), examController.enterResult);
 
 module.exports = router;

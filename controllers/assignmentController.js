@@ -1,6 +1,7 @@
 const Assignment = require('../models/Assignment');
 const Submission = require('../models/Submission');
 const Course = require('../models/Course');
+const Notification = require('../models/Notification');
 const asyncHandler = require('../utils/asyncHandler');
 
 // @desc    Get assignments for a course
@@ -19,9 +20,9 @@ exports.getAssignments = asyncHandler(async (req, res) => {
   
   // If student, we also need their submissions
   let userSubmissions = {};
-  if (req.session.role === 'Student') {
+  if (req.session.user && req.session.user.role_name === 'Student') {
     for (const assign of assignments) {
-      const sub = await Submission.findByStudentAndAssignment(req.session.user_id, assign.assignment_id);
+      const sub = await Submission.findByStudentAndAssignment(req.session.user.user_id, assign.assignment_id);
       if (sub) {
         userSubmissions[assign.assignment_id] = sub;
       }
@@ -33,8 +34,8 @@ exports.getAssignments = asyncHandler(async (req, res) => {
     course,
     assignments,
     userSubmissions,
-    role: req.session.role,
-    user: req.session
+    role: req.session.user.role_name,
+    user: req.session.user
   });
 });
 
@@ -80,8 +81,8 @@ exports.getAssignmentDetails = asyncHandler(async (req, res) => {
     course,
     assignment,
     submissions,
-    role: req.session.role,
-    user: req.session
+    role: req.session.user.role_name,
+    user: req.session.user
   });
 });
 
@@ -115,7 +116,7 @@ exports.submitAssignment = asyncHandler(async (req, res) => {
   try {
     await Submission.submit({
       assignment_id: assignment_id,
-      user_id: req.session.user_id,
+      user_id: req.session.user.user_id,
       course_id: course_id,
       file_url: fileUrl
     });
@@ -146,6 +147,16 @@ exports.gradeSubmission = asyncHandler(async (req, res) => {
   }
 
   await Submission.grade(submission_id, marks_obtained, feedback);
+  const submission = await Submission.findById(submission_id);
+  if (submission) {
+    // DFD-2.8/2.12: grading writes the submission result and notifies the student.
+    await Notification.createInApp(
+      submission.user_id,
+      `Your submission for ${assignment.title} has been graded: ${marks_obtained}/${assignment.max_marks}.`,
+      'assignment',
+      'normal'
+    );
+  }
 
   req.flash('success_msg', 'Submission graded successfully.');
   res.redirect(`/courses/${course_id}/assignments/${assignment_id}`);

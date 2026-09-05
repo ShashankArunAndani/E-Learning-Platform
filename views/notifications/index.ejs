@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head') %>
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <main class="container notification-page">
+    <div style="margin-top: var(--space-4);">
+      <%- include('../partials/flash') %>
+    </div>
+
+    <section class="notification-header">
+      <div>
+        <h1>Notifications</h1>
+        <p>Course updates, payment results, grades, and certificates.</p>
+      </div>
+      <% if (notifications.length > 0) { %>
+        <form action="/notifications/read-all" method="POST">
+          <button type="submit" class="btn btn-secondary">Mark All Read</button>
+        </form>
+      <% } %>
+    </section>
+
+    <% if (notifications.length > 0) { %>
+      <div class="notification-list">
+        <% notifications.forEach(notification => { %>
+          <article class="notification-item <%= notification.status === 'read' ? 'is-read' : 'is-unread' %>">
+            <div class="notification-main">
+              <div class="notification-topline">
+                <span class="notification-type type-<%= notification.type %>"><%= notification.type %></span>
+                <span><%= new Date(notification.created_at).toLocaleString() %></span>
+              </div>
+              <p><%= notification.message %></p>
+              <% if (notification.error_reason) { %>
+                <small class="notification-error"><%= notification.error_reason %></small>
+              <% } %>
+            </div>
+            <div class="notification-side">
+              <span class="notification-status"><%= notification.status %></span>
+              <% if (notification.status !== 'read') { %>
+                <form action="/notifications/<%= notification.notification_id %>/read" method="POST">
+                  <button type="submit" class="btn btn-sm btn-primary">Mark Read</button>
+                </form>
+              <% } %>
+            </div>
+          </article>
+        <% }); %>
+      </div>
+    <% } else { %>
+      <section class="empty-state">
+        <h2>No Notifications Yet</h2>
+        <p>Important course activity will appear here once it is sent.</p>
+      </section>
+    <% } %>
+  </main>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

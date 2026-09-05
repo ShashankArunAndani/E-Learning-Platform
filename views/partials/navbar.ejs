@@ -11,7 +11,7 @@
         <% if (user.role_name === 'Student') { %>
           <li><a href="/my-courses">My Courses</a></li>
           <li><a href="/wishlist">Wishlist</a></li>
-          <li><a href="/cart">Cart 🛒</a></li>
+          <li><a href="/cart">Cart</a></li>
           <li><a href="/orders">My Orders</a></li>
         <% } else if (user.role_name === 'Instructor') { %>
           <li><a href="/courses/manage">My Courses</a></li>
@@ -20,6 +20,14 @@
           <li><a href="/categories">Categories</a></li>
           <li><a href="/coupons">Coupons</a></li>
         <% } %>
+        <li>
+          <a href="/notifications" class="nav-notification-link" aria-label="Notifications">
+            Notifications
+            <% if (typeof unreadNotificationCount !== 'undefined' && unreadNotificationCount > 0) { %>
+              <span class="nav-notification-count"><%= unreadNotificationCount %></span>
+            <% } %>
+          </a>
+        </li>
         <li class="nav-user">
           <span class="user-badge"><%= user.role_name %></span>
           <a href="/logout" class="btn btn-secondary btn-sm" style="color: #ffffff; border-color: rgba(255,255,255,0.2);">Sign Out</a>

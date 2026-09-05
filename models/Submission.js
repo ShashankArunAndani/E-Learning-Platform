@@ -11,7 +11,7 @@ class Submission {
     
     // Check if submission already exists (handled by UNIQUE(assignment_id, user_id) in schema)
     // But it's good to use INSERT IGNORE or handle the duplicate error in controller.
-    const [result] = await db.query(
+    const result = await db.query(
       `INSERT INTO Submissions (assignment_id, user_id, course_id, file_url) 
        VALUES (?, ?, ?, ?)`,
       [assignment_id, user_id, course_id, file_url]

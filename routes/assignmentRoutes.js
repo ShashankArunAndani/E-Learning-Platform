@@ -8,19 +8,19 @@ const assignmentController = require('../controllers/assignmentController');
 router.use(isAuthenticated);
 
 // GET /courses/:course_id/assignments (Student and Instructor)
-router.get('/', authorize('manage_courses', 'view_courses', 'enroll_courses'), assignmentController.getAssignments);
+router.get('/', authorize('course:browse'), assignmentController.getAssignments);
 
 // POST /courses/:course_id/assignments (Instructor only)
-router.post('/', authorize('manage_courses'), assignmentController.createAssignment);
+router.post('/', authorize('course:edit'), assignmentController.createAssignment);
 
 // GET /courses/:course_id/assignments/:assignment_id (Instructor view submissions)
-router.get('/:assignment_id', authorize('manage_courses'), assignmentController.getAssignmentDetails);
+router.get('/:assignment_id', authorize('assignment:grade'), assignmentController.getAssignmentDetails);
 
 // POST /courses/:course_id/assignments/:assignment_id/submit (Student only)
 // Note: 'enroll_courses' is a basic student permission, but strictly speaking we should check actual enrollment. The controller/DB logic handles this.
-router.post('/:assignment_id/submit', authorize('enroll_courses'), upload.single('assignment_file'), assignmentController.submitAssignment);
+router.post('/:assignment_id/submit', authorize('assignment:submit'), upload.single('assignment_file'), assignmentController.submitAssignment);
 
 // POST /courses/:course_id/assignments/:assignment_id/grade/:submission_id (Instructor only)
-router.post('/:assignment_id/grade/:submission_id', authorize('manage_courses'), assignmentController.gradeSubmission);
+router.post('/:assignment_id/grade/:submission_id', authorize('assignment:grade'), assignmentController.gradeSubmission);
 
 module.exports = router;

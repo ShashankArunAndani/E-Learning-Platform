@@ -105,6 +105,7 @@ class Certificate {
         [userId, courseId]
       );
 
+      issuedRows[0].wasIssued = true;
       return issuedRows[0];
     });
   }

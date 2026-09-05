@@ -103,6 +103,27 @@ a:hover {
   gap: var(--space-2);
 }
 
+.nav-notification-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.nav-notification-count {
+  min-width: 1.25rem;
+  height: 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  background: var(--gold);
+  color: var(--ink-navy);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
 .user-badge {
   background: var(--deep-indigo);
   color: var(--parchment);
@@ -446,6 +467,129 @@ a:hover {
   font-weight: 600;
 }
 
+.activity-metadata {
+  max-width: 320px;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Notifications & Activity Log — Phase 7 */
+.notification-page {
+  padding-bottom: var(--space-6);
+}
+
+.notification-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin: var(--space-4) 0;
+}
+
+.notification-header h1 {
+  font-size: 2.5rem;
+}
+
+.notification-header p {
+  color: var(--text-muted);
+  margin-top: var(--space-1);
+}
+
+.notification-list {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.notification-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-3);
+  align-items: center;
+  background: var(--white);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+}
+
+.notification-item.is-unread {
+  border-left: 4px solid var(--verdant);
+}
+
+.notification-item.is-read {
+  background: #FCFBF8;
+}
+
+.notification-main p {
+  margin-top: var(--space-1);
+  color: var(--charcoal);
+}
+
+.notification-topline {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.notification-type {
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  background: var(--parchment);
+  color: var(--ink-navy);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.notification-type.type-certificate {
+  border-color: var(--gold);
+  color: var(--ink-navy);
+}
+
+.notification-type.type-payment,
+.notification-type.type-enrollment,
+.notification-type.type-assignment {
+  border-color: #B2D9D0;
+  color: var(--verdant);
+}
+
+.notification-side {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.notification-status {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.notification-error {
+  display: block;
+  margin-top: var(--space-1);
+  color: var(--danger);
+}
+
+.empty-state {
+  background: var(--white);
+  border: 1px dashed var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-6);
+  text-align: center;
+}
+
+.empty-state h2 {
+  font-size: 1.75rem;
+}
+
+.empty-state p {
+  color: var(--text-muted);
+  margin-top: var(--space-1);
+}
+
 /* Footer */
 .footer {
   background: var(--ink-navy);
@@ -469,6 +613,16 @@ a:hover {
   }
   .dashboard-grid {
     grid-template-columns: 1fr;
+  }
+  .notification-header,
+  .notification-item {
+    grid-template-columns: 1fr;
+  }
+  .notification-header {
+    align-items: flex-start;
+  }
+  .notification-side {
+    justify-content: space-between;
   }
   .learn-layout {
     grid-template-columns: 1fr;

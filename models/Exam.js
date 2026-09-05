@@ -6,7 +6,7 @@ class Exam {
    */
   static async create(data) {
     const { course_id, title, total_marks, duration, exam_date } = data;
-    const [result] = await db.query(
+    const result = await db.query(
       `INSERT INTO Exams (course_id, title, total_marks, duration, exam_date) 
        VALUES (?, ?, ?, ?, ?)`,
       [course_id, title, total_marks, duration, exam_date]
@@ -44,7 +44,7 @@ class Exam {
     const { exam_id, user_id, course_id, marks_obtained, grade } = data;
     
     // Check if result already exists to perform update or handle gracefully via UPSERT (ON DUPLICATE KEY UPDATE)
-    const [result] = await db.query(
+    const result = await db.query(
       `INSERT INTO Results (exam_id, user_id, course_id, marks_obtained, grade) 
        VALUES (?, ?, ?, ?, ?)
        ON DUPLICATE KEY UPDATE marks_obtained = ?, grade = ?, result_date = CURRENT_TIMESTAMP`,

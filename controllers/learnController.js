@@ -3,6 +3,7 @@ const Lesson = require('../models/Lesson');
 const Enrollment = require('../models/Enrollment');
 const Progress = require('../models/Progress');
 const Certificate = require('../models/Certificate');
+const Notification = require('../models/Notification');
 
 /**
  * Render My Courses student dashboard
@@ -172,6 +173,14 @@ const completeLesson = async (req, res) => {
   if (result.completion_status === 'completed') {
     const certificate = await Certificate.issueIfEligible(user.user_id, courseId);
     certificateUrl = certificate.certificate_url;
+    if (certificate.wasIssued) {
+      await Notification.createInApp(
+        user.user_id,
+        `Your certificate for ${course.title} has been issued.`,
+        'certificate',
+        'high'
+      );
+    }
   }
 
   const currentIndex = lessons.findIndex(l => l.lesson_id === lessonId);

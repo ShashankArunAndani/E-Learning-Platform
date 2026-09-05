@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const Notification = require('./Notification');
 
 class Payment {
   /**
@@ -34,13 +35,16 @@ class Payment {
         const userId = orderRows[0].user_id;
 
         const [orderItems] = await connection.execute(
-          `SELECT order_item_id, course_id FROM Order_Items WHERE order_id = ?`,
+          `SELECT oi.order_item_id, oi.course_id, c.title AS course_title
+           FROM Order_Items oi
+           INNER JOIN Courses c ON oi.course_id = c.course_id
+           WHERE oi.order_id = ?`,
           [orderId]
         );
 
         // 4. Auto-create Enrollments and Progress for each course
         for (const item of orderItems) {
-          const { order_item_id, course_id } = item;
+          const { order_item_id, course_id, course_title } = item;
 
           // Insert Enrollments row (handling duplicate gracefully if already enrolled)
           await connection.execute(
@@ -64,13 +68,47 @@ class Payment {
              ON DUPLICATE KEY UPDATE total_lessons = VALUES(total_lessons)`,
             [userId, course_id, totalLessons]
           );
+
+          // DFD-2.7/2.12: successful payment creates enrollment and an in-app notification.
+          await Notification.createInApp(
+            userId,
+            `You are now enrolled in ${course_title}.`,
+            'enrollment',
+            'normal',
+            connection
+          );
         }
+
+        // DFD-2.5/2.12: payment success is delivered as an in-app notification.
+        await Notification.createInApp(
+          userId,
+          `Payment successful for order #${orderId}. Your courses are ready to learn.`,
+          'payment',
+          'high',
+          connection
+        );
       } else {
         // 5. Mark Order as failed
         await connection.execute(
           `UPDATE Orders SET status = 'failed' WHERE order_id = ?`,
           [orderId]
         );
+
+        const [orderRows] = await connection.execute(
+          `SELECT user_id FROM Orders WHERE order_id = ?`,
+          [orderId]
+        );
+
+        if (orderRows.length > 0) {
+          // DFD-2.12: failed delivery/result paths remain visible in-app for retry.
+          await Notification.createInApp(
+            orderRows[0].user_id,
+            `Payment failed for order #${orderId}. You can retry from checkout.`,
+            'payment',
+            'high',
+            connection
+          );
+        }
       }
 
       return { paymentId, status: paymentStatus };

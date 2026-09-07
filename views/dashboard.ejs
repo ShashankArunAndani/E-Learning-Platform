@@ -38,12 +38,112 @@
       <!-- Main Workspace Section -->
       <section class="main-content-card">
         <% if (typeof panelMode !== 'undefined' && panelMode === 'admin') { %>
-          <h2>Admin Control Center</h2>
-          <p style="color: var(--text-muted); margin-bottom: var(--space-4);">
-            Platform audit trail for sensitive security and business events.
-          </p>
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-4);">
+            <div>
+              <h2 style="font-family: var(--font-display); color: var(--ink-navy); font-size: 1.75rem;">Admin Control Center</h2>
+              <p style="color: var(--text-muted); font-size: 0.9rem;">
+                Platform governance, user & course moderation, revenue analytics, and security audit logs.
+              </p>
+            </div>
+            <div style="display: flex; gap: var(--space-2); flex-wrap: wrap;">
+              <a href="/admin/users" class="btn btn-secondary btn-sm">Manage Users</a>
+              <a href="/admin/courses" class="btn btn-secondary btn-sm">Moderate Courses</a>
+              <a href="/admin/orders" class="btn btn-secondary btn-sm">Orders & Payments</a>
+              <a href="/categories" class="btn btn-secondary btn-sm">Categories</a>
+              <a href="/coupons" class="btn btn-secondary btn-sm">Coupons</a>
+            </div>
+          </div>
 
-          <h3 style="font-size: 1.1rem; margin-top: var(--space-4);">Recent Activity Log</h3>
+          <% if (typeof metrics !== 'undefined') { %>
+            <!-- Metric KPI Cards -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-3); margin-bottom: var(--space-4);">
+              <div style="padding: var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); background: var(--parchment); border-left: 4px solid var(--gold);">
+                <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 600;">Total Revenue</div>
+                <div style="font-size: 1.75rem; font-weight: 700; color: var(--ink-navy); margin-top: var(--space-1); font-family: var(--font-display);">
+                  $<%= metrics.revenue.total_revenue.toFixed(2) %>
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+                  <%= metrics.revenue.completed_orders_count %> completed transactions
+                </div>
+              </div>
+
+              <div style="padding: var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); background: var(--parchment); border-left: 4px solid var(--ink-navy);">
+                <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 600;">Total Users</div>
+                <div style="font-size: 1.75rem; font-weight: 700; color: var(--ink-navy); margin-top: var(--space-1); font-family: var(--font-display);">
+                  <%= metrics.users.total_users %>
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+                  <%= metrics.users.student_count %> Students &bull; <%= metrics.users.instructor_count %> Instructors
+                  <% if (metrics.users.banned_users > 0) { %>
+                    &bull; <span style="color: var(--danger); font-weight: 600;"><%= metrics.users.banned_users %> Banned</span>
+                  <% } %>
+                </div>
+              </div>
+
+              <div style="padding: var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); background: var(--parchment); border-left: 4px solid var(--verdant);">
+                <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 600;">Total Courses</div>
+                <div style="font-size: 1.75rem; font-weight: 700; color: var(--ink-navy); margin-top: var(--space-1); font-family: var(--font-display);">
+                  <%= metrics.courses.total_courses %>
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+                  <%= metrics.courses.published_courses %> Published &bull; <%= metrics.courses.draft_courses %> Draft
+                </div>
+              </div>
+
+              <div style="padding: var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); background: var(--parchment); border-left: 4px solid var(--deep-indigo);">
+                <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 600;">Course Enrollments</div>
+                <div style="font-size: 1.75rem; font-weight: 700; color: var(--ink-navy); margin-top: var(--space-1); font-family: var(--font-display);">
+                  <%= metrics.totalEnrollments %>
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+                  Active student course enrollments
+                </div>
+              </div>
+            </div>
+
+            <!-- Most Enrolled Courses Section -->
+            <div style="margin-bottom: var(--space-4);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-2);">
+                <h3 style="font-size: 1.15rem; color: var(--ink-navy); font-family: var(--font-display);">Top Enrolled Courses</h3>
+                <a href="/admin/courses" style="font-size: 0.85rem; color: var(--gold); font-weight: 600;">View All Courses &rarr;</a>
+              </div>
+
+              <% if (metrics.mostEnrolledCourses && metrics.mostEnrolledCourses.length > 0) { %>
+                <div style="overflow-x: auto;">
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th>Course Title</th>
+                        <th>Instructor</th>
+                        <th>Price</th>
+                        <th>Status</th>
+                        <th>Enrollments</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% metrics.mostEnrolledCourses.forEach(c => { %>
+                        <tr>
+                          <td><strong><a href="/courses/<%= c.course_id %>" style="color: var(--ink-navy);"><%= c.title %></a></strong></td>
+                          <td><%= c.instructor_name %></td>
+                          <td><%= parseFloat(c.price) === 0 ? 'Free' : '$' + parseFloat(c.price).toFixed(2) %></td>
+                          <td>
+                            <span class="badge badge-<%= c.status === 'published' ? 'success' : (c.status === 'banned' || c.status === 'archived' ? 'danger' : 'secondary') %>">
+                              <%= c.status %>
+                            </span>
+                          </td>
+                          <td><strong><%= c.enrollment_count %></strong> students</td>
+                        </tr>
+                      <% }); %>
+                    </tbody>
+                  </table>
+                </div>
+              <% } else { %>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">No course enrollment data available yet.</p>
+              <% } %>
+            </div>
+          <% } %>
+
+          <h3 style="font-size: 1.15rem; color: var(--ink-navy); font-family: var(--font-display); margin-top: var(--space-4); margin-bottom: var(--space-2);">Recent Activity & Audit Log</h3>
           <% if (typeof recentLogs !== 'undefined' && recentLogs.length > 0) { %>
             <div style="overflow-x: auto;">
               <table class="data-table">
@@ -117,6 +217,16 @@
               <p style="font-size: 1.25rem; font-weight: 600; color: var(--gold); margin-top: var(--space-1);">RBAC Active</p>
             </div>
           </div>
+
+          <% if (user.role_name === 'Admin') { %>
+            <div style="margin-top: var(--space-4); padding: var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); background: var(--parchment);">
+              <h4 style="color: var(--ink-navy); margin-bottom: var(--space-1);">Administrative Portal</h4>
+              <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: var(--space-3);">
+                Access full platform moderation, users, courses, financial revenue, and audit trails.
+              </p>
+              <a href="/dashboard/admin" class="btn btn-primary btn-sm">Enter Admin Control Center &rarr;</a>
+            </div>
+          <% } %>
         <% } %>
       </section>
     </div>

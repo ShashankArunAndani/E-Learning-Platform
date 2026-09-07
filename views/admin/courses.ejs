@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head') %>
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <main class="container">
+    <div style="margin-top: var(--space-4);">
+      <%- include('../partials/flash') %>
+    </div>
+
+    <div style="margin-bottom: var(--space-4);">
+      <a href="/dashboard/admin" style="font-size: 0.875rem; color: var(--text-muted); text-decoration: none;">
+        &larr; Back to Admin Control Center
+      </a>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: var(--space-2); flex-wrap: wrap; gap: var(--space-2);">
+        <div>
+          <h1 style="font-family: var(--font-display); color: var(--ink-navy); font-size: 2rem;">Course Moderation</h1>
+          <p style="color: var(--text-muted); font-size: 0.95rem;">
+            Total courses on platform: <strong><%= courses.length %></strong>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="background: var(--white); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: var(--space-3); box-shadow: var(--shadow-subtle);">
+      <div style="overflow-x: auto;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Course Title</th>
+              <th>Instructor</th>
+              <th>Price</th>
+              <th>Level</th>
+              <th>Created</th>
+              <th>Status</th>
+              <th>Moderation Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (courses && courses.length > 0) { %>
+              <% courses.forEach(c => { %>
+                <tr>
+                  <td>#<%= c.course_id %></td>
+                  <td>
+                    <strong><a href="/courses/<%= c.course_id %>" style="color: var(--ink-navy);"><%= c.title %></a></strong>
+                  </td>
+                  <td><%= c.instructor_name %></td>
+                  <td><%= parseFloat(c.price) === 0 ? 'Free' : '$' + parseFloat(c.price).toFixed(2) %></td>
+                  <td><span style="text-transform: capitalize;"><%= c.level %></span></td>
+                  <td><%= new Date(c.created_at).toLocaleDateString() %></td>
+                  <td>
+                    <span class="badge badge-<%= c.status === 'published' ? 'success' : (c.status === 'archived' ? 'danger' : 'secondary') %>">
+                      <%= c.status %>
+                    </span>
+                  </td>
+                  <td>
+                    <div style="display: flex; gap: var(--space-1); flex-wrap: wrap; align-items: center;">
+                      <a href="/courses/<%= c.course_id %>" class="btn btn-sm btn-secondary" style="padding: 4px 8px; font-size: 0.75rem;">
+                        View
+                      </a>
+                      
+                      <% if (c.status !== 'published') { %>
+                        <form action="/admin/courses/<%= c.course_id %>/status" method="POST" style="display: inline;" onsubmit="return confirm('Publish course: <%= c.title %>?');">
+                          <input type="hidden" name="status" value="published">
+                          <button type="submit" class="btn btn-sm btn-primary" style="padding: 4px 8px; font-size: 0.75rem;">
+                            Publish
+                          </button>
+                        </form>
+                      <% } %>
+
+                      <% if (c.status !== 'draft') { %>
+                        <form action="/admin/courses/<%= c.course_id %>/status" method="POST" style="display: inline;" onsubmit="return confirm('Set course to DRAFT mode: <%= c.title %>?');">
+                          <input type="hidden" name="status" value="draft">
+                          <button type="submit" class="btn btn-sm btn-secondary" style="padding: 4px 8px; font-size: 0.75rem;">
+                            Draft
+                          </button>
+                        </form>
+                      <% } %>
+
+                      <% if (c.status !== 'archived') { %>
+                        <form action="/admin/courses/<%= c.course_id %>/status" method="POST" style="display: inline;" onsubmit="return confirm('ARCHIVE course: <%= c.title %>?');">
+                          <input type="hidden" name="status" value="archived">
+                          <button type="submit" class="btn btn-sm btn-danger" style="padding: 4px 8px; font-size: 0.75rem;">
+                            Archive
+                          </button>
+                        </form>
+                      <% } %>
+                    </div>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } else { %>
+              <tr>
+                <td colspan="8" style="text-align: center; color: var(--text-muted); padding: var(--space-4);">
+                  No courses found in database.
+                </td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

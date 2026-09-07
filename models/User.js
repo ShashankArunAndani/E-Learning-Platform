@@ -80,6 +80,18 @@ class User {
   }
 
   /**
+   * Fetch all users across the platform (joins Roles for role_name)
+   */
+  static async findAllUsers() {
+    return await db.query(
+      `SELECT u.user_id, u.name, u.email, u.phone, u.status, u.created_at, r.role_name
+       FROM Users u
+       INNER JOIN Roles r ON u.role_id = r.role_id
+       ORDER BY u.created_at DESC`
+    );
+  }
+
+  /**
    * Update user status ('active', 'inactive', 'banned')
    * @param {number} userId
    * @param {string} status

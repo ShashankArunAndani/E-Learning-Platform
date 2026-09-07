@@ -27,6 +27,7 @@ const examRoutes = require('./routes/examRoutes');
 const certificateRoutes = require('./routes/certificateRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 const Notification = require('./models/Notification');
 
 const app = express();
@@ -110,6 +111,7 @@ app.use('/', learnRoutes);
 app.use('/', certificateRoutes);
 app.use('/', reviewRoutes);
 app.use('/', notificationRoutes);
+app.use('/', adminRoutes);
 app.use('/courses/:course_id/assignments', assignmentRoutes);
 app.use('/courses/:course_id/exams', examRoutes);
 

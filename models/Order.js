@@ -104,6 +104,24 @@ class Order {
   }
 
   /**
+   * Fetch all orders across the platform with customer and coupon details
+   */
+  static async findAllOrdersForAdmin() {
+    return await db.query(
+      `SELECT o.order_id, o.user_id, u.name AS user_name, u.email AS user_email,
+              o.coupon_id, c.code AS coupon_code, o.subtotal_amount, o.discount_amount, o.total_amount,
+              o.status, o.created_at,
+              COUNT(oi.order_item_id) AS item_count
+       FROM Orders o
+       INNER JOIN Users u ON o.user_id = u.user_id
+       LEFT JOIN Coupons c ON o.coupon_id = c.coupon_id
+       LEFT JOIN Order_Items oi ON o.order_id = oi.order_id
+       GROUP BY o.order_id, o.user_id, u.name, u.email, o.coupon_id, c.code, o.subtotal_amount, o.discount_amount, o.total_amount, o.status, o.created_at
+       ORDER BY o.created_at DESC`
+    );
+  }
+
+  /**
    * Update order status
    * @param {number} orderId
    * @param {string} status

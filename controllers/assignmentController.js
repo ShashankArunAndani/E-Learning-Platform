@@ -10,14 +10,14 @@ const asyncHandler = require('../utils/asyncHandler');
 exports.getAssignments = asyncHandler(async (req, res) => {
   const courseId = req.params.course_id;
   const course = await Course.findById(courseId);
-  
+
   if (!course) {
     req.flash('error_msg', 'Course not found');
     return res.redirect('/my-courses');
   }
 
   const assignments = await Assignment.findByCourse(courseId);
-  
+
   // If student, we also need their submissions
   let userSubmissions = {};
   if (req.session.user && req.session.user.role_name === 'Student') {
@@ -47,7 +47,7 @@ exports.createAssignment = asyncHandler(async (req, res) => {
   const { title, description, max_marks, due_date, late_submission_allowed } = req.body;
 
   // Basic validation could be added here
-  
+
   await Assignment.create({
     course_id: courseId,
     title,
@@ -68,7 +68,7 @@ exports.getAssignmentDetails = asyncHandler(async (req, res) => {
   const { course_id, assignment_id } = req.params;
   const course = await Course.findById(course_id);
   const assignment = await Assignment.findById(assignment_id);
-  
+
   if (!assignment) {
     req.flash('error_msg', 'Assignment not found');
     return res.redirect(`/courses/${course_id}/assignments`);

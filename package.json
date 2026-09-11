@@ -6,7 +6,10 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "init-db": "node scripts/initDb.js"
+    "init-db": "node scripts/initDb.js",
+    "seed-catalog": "node scripts/seedCatalog.js",
+    "seed-coupons": "node scripts/seedCoupons.js",
+    "test": "node scripts/test-suite.js"
   },
   "keywords": [
     "e-learning",

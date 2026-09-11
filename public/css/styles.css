@@ -23,16 +23,27 @@ main {
 }
 
 /* Headings */
-h1, h2, h3, .font-display {
+h1,
+h2,
+h3,
+.font-display {
   font-family: var(--font-display);
   color: var(--ink-navy);
   line-height: 1.15;
   font-weight: 600;
 }
 
-h1 { font-size: var(--text-hero); }
-h2 { font-size: var(--text-h2); }
-h3 { font-size: var(--text-h3); }
+h1 {
+  font-size: var(--text-hero);
+}
+
+h2 {
+  font-size: var(--text-h2);
+}
+
+h3 {
+  font-size: var(--text-h3);
+}
 
 a {
   color: var(--ink-navy);
@@ -455,7 +466,8 @@ a:hover {
   font-size: 0.875rem;
 }
 
-.data-table th, .data-table td {
+.data-table th,
+.data-table td {
   padding: var(--space-2);
   text-align: left;
   border-bottom: 1px solid var(--border-subtle);
@@ -611,22 +623,28 @@ a:hover {
   .hero-grid {
     grid-template-columns: 1fr;
   }
+
   .dashboard-grid {
     grid-template-columns: 1fr;
   }
+
   .notification-header,
   .notification-item {
     grid-template-columns: 1fr;
   }
+
   .notification-header {
     align-items: flex-start;
   }
+
   .notification-side {
     justify-content: space-between;
   }
+
   .learn-layout {
     grid-template-columns: 1fr;
   }
+
   .learn-sidebar {
     order: 2;
   }
@@ -1077,31 +1095,38 @@ a:hover {
   .certificate-inner {
     padding: var(--space-4);
   }
+
   .certificate-inner h1,
   .certificate-student {
     font-size: 2rem;
   }
+
   .certificate-meta-grid {
     grid-template-columns: 1fr;
   }
+
   .certificate-actions {
     flex-direction: column;
   }
 }
 
 @media print {
+
   .navbar,
   .footer,
   .alert-container,
   .certificate-actions {
     display: none;
   }
+
   body {
     background: var(--white);
   }
+
   .certificate-page {
     padding: 0;
   }
+
   .certificate-sheet {
     box-shadow: none;
     border: 0;

@@ -5,17 +5,17 @@ const validateRegister = [
     .trim()
     .notEmpty().withMessage('Full Name is required.')
     .isLength({ min: 2, max: 100 }).withMessage('Name must be between 2 and 100 characters.'),
-  
+
   body('email')
     .trim()
     .notEmpty().withMessage('Email is required.')
     .isEmail().withMessage('Please provide a valid email address.')
     .normalizeEmail(),
-  
+
   body('password')
     .notEmpty().withMessage('Password is required.')
     .isLength({ min: 6 }).withMessage('Password must be at least 6 characters long.'),
-  
+
   body('confirm_password')
     .custom((value, { req }) => {
       if (value !== req.body.password) {
@@ -28,7 +28,7 @@ const validateRegister = [
     .trim()
     .notEmpty().withMessage('Role selection is required.')
     .isIn(['Student', 'Instructor']).withMessage('Role must be either Student or Instructor.'),
-  
+
   body('phone')
     .optional({ checkFalsy: true })
     .trim()
@@ -41,7 +41,7 @@ const validateLogin = [
     .notEmpty().withMessage('Email is required.')
     .isEmail().withMessage('Please provide a valid email address.')
     .normalizeEmail(),
-  
+
   body('password')
     .notEmpty().withMessage('Password is required.')
 ];

@@ -9,14 +9,14 @@ const asyncHandler = require('../utils/asyncHandler');
 exports.getExams = asyncHandler(async (req, res) => {
   const courseId = req.params.course_id;
   const course = await Course.findById(courseId);
-  
+
   if (!course) {
     req.flash('error_msg', 'Course not found');
     return res.redirect('/my-courses');
   }
 
   const exams = await Exam.findByCourse(courseId);
-  
+
   // If student, get their results
   let userResults = {};
   if (req.session.user && req.session.user.role_name === 'Student') {
@@ -64,7 +64,7 @@ exports.getExamDetails = asyncHandler(async (req, res) => {
   const { course_id, exam_id } = req.params;
   const course = await Course.findById(course_id);
   const exam = await Exam.findById(exam_id);
-  
+
   if (!exam) {
     req.flash('error_msg', 'Exam not found');
     return res.redirect(`/courses/${course_id}/exams`);

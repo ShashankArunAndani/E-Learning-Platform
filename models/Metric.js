@@ -67,7 +67,7 @@ class Metric {
 
   /**
    * Get top most enrolled courses with instructor name, enrollment count and average rating
-   * Demonstrates non-trivial SQL JOIN + GROUP BY
+   * Demonstrates non-trivial SQL JOIN + GROUP BY with parameterization
    * @param {number} limit
    */
   static async getMostEnrolledCourses(limit = 5) {
@@ -88,7 +88,8 @@ class Metric {
        LEFT JOIN Reviews r ON c.course_id = r.course_id
        GROUP BY c.course_id, c.title, c.price, c.level, c.status, u.name
        ORDER BY enrollment_count DESC, c.title ASC
-       LIMIT ${safeLimit}`
+       LIMIT ?`,
+      [safeLimit]
     );
   }
 
